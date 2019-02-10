@@ -14,14 +14,6 @@ class Entity:
         if self.type == other.type:
             if self.text == other.text:
                 return True
-            else:
-                print self.text
-                print other.text
-                tfidf_vectorizer = TfidfVectorizer(analyzer="char")
-                tfidf_matrix = tfidf_vectorizer.fit_transform((self.text, other.text))
-                cs = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)
-                print cs[0][1]
-                return cs[0][1] > 0.85
         return False
 
     def __hash__(self):
