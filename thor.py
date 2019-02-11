@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 from entity_extractor import EntityExtractor
+import tweet_retreiver
+import relation_extractor
 
 entity_extractor = EntityExtractor()
 
-entity_extractor.extract_entities(
-    'Alvaro Uribe Velez y Colombia es el pais mas lindo del mundo, la Fiscalia es lo peor, el cartel de la toga se queda pequeño @Ivanduque es un perdedor que debe $50000 millones de pesos Alvaro Uribe')
+tweets = tweet_retreiver.request_tweets('Hidroituango')
+
+for tweet in tweets:
+    tweet.nee_entities = entity_extractor.extract_entities(tweet.full_text)
+
+#print tweets
+
+clusters = relation_extractor.discover_relations(tweets)
+#print clusters
