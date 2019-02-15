@@ -7,7 +7,6 @@ from nltk import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-import itertools
 from scipy.cluster.hierarchy import fcluster, linkage
 from model.relation import Relation
 
@@ -82,7 +81,7 @@ def remove_stop_words(dirty_text):
 
 def remove_punctuation(dirty_string):
     for word in non_words:
-        dirty_string = dirty_string.replace(word.decode('utf-8'), '')
+        dirty_string = dirty_string.replace(word, '')
 
     return dirty_string
 
@@ -90,17 +89,17 @@ def remove_punctuation(dirty_string):
 def discover_relations(tweets):
     create_clusters(tweets)
     seek_common_relations()
-    for key, value in clusters.iteritems():
+    for key, value in clusters.items():
         corpus = [o['cleaned_relation_text'] for o in value]
         if not corpus or len(corpus) < 2:
-            print 'Empty corpus'
+            print ('Empty corpus')
             continue
         X = vectorizer.fit_transform(corpus)
         Z = linkage(X.toarray(), 'single', 'cosine')
         k = 20000
         discovered_clusters = fcluster(Z, k, criterion='maxclust')
         getCommonWordsFromCluster(value, discovered_clusters)
-    print relations
+    print (relations)
     return clusters
 
 
@@ -127,7 +126,7 @@ def create_clusters(tweets):
         entities_for_relations = [
             entity for entity in tweet.nee_entities if is_interesting_entity(entity)]
         if entities_for_relations:
-            for first, second in itertools.izip(entities_for_relations, entities_for_relations[1:]):
+            for first, second in zip(entities_for_relations, entities_for_relations[1:]):
                 cluster = clusters.get(get_cluster_type(first, second))
                 try:
                     text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
@@ -176,7 +175,7 @@ def is_interesting_entity(entity):
 
 
 def seek_common_relations():
-    for key, value in clusters.iteritems():
+    for key, value in clusters.items():
         for item in value:
             if item['relation_text'] in predefined_relations:
                 relations.append(

@@ -13,4 +13,4 @@ for tweet in tweets:
 #print tweets
 
 clusters = relation_extractor.discover_relations(tweets)
-#print clusters
+#print (clusters)

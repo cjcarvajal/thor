@@ -5,11 +5,8 @@ class Relation:
         self.relation = relation
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
-
-    def __unicode__(self):
-        origin = unicode(self.entity_origin)
-        end = unicode(self.entity_end)
+        origin = str(self.entity_origin)
+        end = str(self.entity_end)
         return u'Origin [' + origin + u'] Relation[{self.relation}]'.format(self=self) + u' End [' + end + u']'
 
     def __eq__(self, other):
