@@ -11,5 +11,5 @@ def request_tweets(subject):
     headers = {'Authorization': token}
     r = requests.get(base_url, params=params_map, headers=headers)
     result = r.json()
-    return [Tweet(tweet['retweeted_status']['full_text']) if 'retweeted_status' in tweet
-            else Tweet(tweet['full_text']) for tweet in result['statuses']]
+    return [Tweet(tweet['retweeted_status']['full_text'],[]) if 'retweeted_status' in tweet
+            else Tweet(tweet['full_text'],[]) for tweet in result['statuses']]

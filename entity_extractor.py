@@ -15,6 +15,7 @@ class EntityExtractor:
         stanford_properties_map), 'pipelineLanguage': 'es'}
 
     def extract_entities(self, text):
+        print('el texto de la entidad es' + text)
         stanford_entities = self._extract_entities_with_standford(text)
         vision_entities = self._extract_entities_with_vision(text)
         unified_entities = self._unify_entities(
@@ -51,6 +52,6 @@ class EntityExtractor:
             if len(entity_indexed.index) > 0:
                 for index in entity_indexed.index:
                     entities_with_index_normalized.append(
-                        Entity(entity_indexed.type, entity_indexed.text, index))
+                        Entity(entity_indexed.entity_type, entity_indexed.text, index))
         entities_with_index_normalized.sort(key=lambda x: x.index)
         return entities_with_index_normalized

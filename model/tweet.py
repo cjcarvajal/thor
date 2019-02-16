@@ -1,7 +1,10 @@
-class Tweet:
-    def __init__(self, text):
-        self.full_text = text
-        self.nee_entities = []
+import faust
+from typing import List
+from model.entity import Entity
+
+class Tweet(faust.Record,serializer='json'):
+    full_text: str
+    nee_entities: List[Entity]
 
     def __str__(self):
         entities_text = u''

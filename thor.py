@@ -1,16 +1,23 @@
-# -*- coding: utf-8 -*-
-from entity_extractor import EntityExtractor
+import asyncio
+
 import tweet_retreiver
-import relation_extractor
+from heimdall import start_processing
+from model.tweet import Tweet
 
-entity_extractor = EntityExtractor()
+#import relation_extractor
 
-tweets = tweet_retreiver.request_tweets('Hidroituango')
+async def analyze_tweets() -> None:
+    tweets = tweet_retreiver.request_tweets('Hidroituango')
+    for tweet in tweets:
+        await start_processing.cast(tweet)
 
-for tweet in tweets:
-    tweet.nee_entities = entity_extractor.extract_entities(tweet.full_text)
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(analyze_tweets())
+    
+    
 
 #print tweets
 
-clusters = relation_extractor.discover_relations(tweets)
+#clusters = relation_extractor.discover_relations(tweets)
 #print (clusters)
