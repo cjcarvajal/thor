@@ -9,11 +9,12 @@ from nltk.stem import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.cluster.hierarchy import fcluster, linkage
 from model.relation import Relation
+from model.possible_relation import PossibleRelation
 
 interesting_entity_types = ['TITLE', 'PERCENT',
                             'MISC', 'PERSON', 'CRIMINAL_CHARGE', 'ORGANIZATION']
 
-predefined_relations = ['responde por', 'cuando dices q',
+predefined_relations = ['y','responde por', 'cuando dices q',
                         'pintaron de negro', 'debe estar q se revienta de la ira, porq el']
 
 clusters = {
@@ -87,6 +88,10 @@ def remove_punctuation(dirty_string):
 
 
 def discover_relations(tweets):
+    possible_relations =  get_possible_relations(tweets)
+    fixed_relations = seek_common_relations(possible_relations)
+    return possible_relations,fixed_relations
+    '''
     create_clusters(tweets)
     seek_common_relations()
     for key, value in clusters.items():
@@ -101,6 +106,23 @@ def discover_relations(tweets):
         getCommonWordsFromCluster(value, discovered_clusters)
     print (relations)
     return clusters
+    '''
+
+def get_possible_relations(tweets):
+    possible_relations = []
+    for tweet in tweets:
+        entities_for_relations = tweet.nee_entities
+        if entities_for_relations:
+            for first, second in zip(entities_for_relations, entities_for_relations[1:]):
+                try:
+                    text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
+                        first.text)):tweet.full_text.index(second.text)]
+                    cleaned_text = remove_stop_words(text_in_between)
+                    cleaned_text = remove_punctuation(cleaned_text)
+                    possible_relations.append(PossibleRelation(text_in_between.strip(),cleaned_text,first,second,tweet))
+                except Exception as e:
+                    print(e)
+    return possible_relations
 
 
 def getCommonWordsFromCluster(segmented_cluster, clusters_by_element):
@@ -144,39 +166,39 @@ def create_clusters(tweets):
 
 
 def get_cluster_type(first, second):
-    if first.type == 'PERSON' and second.type == 'PERSON':
+    if first.entity_type == 'PERSON' and second.entity_type == 'PERSON':
         return 'person_person_cluster'
-    if first.type == 'PERSON' and second.type == 'ORGANIZATION':
+    if first.entity_type == 'PERSON' and second.entity_type == 'ORGANIZATION':
         return 'person_organization_cluster'
-    if first.type == 'ORGANIZATION' and second.type == 'PERSON':
+    if first.entity_type == 'ORGANIZATION' and second.entity_type == 'PERSON':
         return 'organization_person_cluster'
-    if first.type == 'ORGANIZATION' and second.type == 'ORGANIZATION':
+    if first.entity_type == 'ORGANIZATION' and second.entity_type == 'ORGANIZATION':
         return 'organization_organization_cluster'
-    if first.type == 'PERSON' and second.type == 'TITLE':
+    if first.entity_type == 'PERSON' and second.entity_type == 'TITLE':
         return 'person_title_cluster'
-    if first.type == 'TITLE' and second.type == 'PERSON':
+    if first.entity_type == 'TITLE' and second.entity_type == 'PERSON':
         return 'title_person_cluster'
-    if first.type == 'PERSON' and second.type == 'CRIMINAL_CHARGE':
+    if first.entity_type == 'PERSON' and second.entity_type == 'CRIMINAL_CHARGE':
         return 'person_criminal_charge_cluster'
-    if first.type == 'PERSON' and second.type == 'MISC':
+    if first.entity_type == 'PERSON' and second.entity_type == 'MISC':
         return 'person_misc_cluster'
-    if first.type == 'MISC' and second.type == 'PERSON':
+    if first.entity_type == 'MISC' and second.entity_type == 'PERSON':
         return 'misc_person'
-    if first.type == 'MISC' and second.type == 'ORGANIZATION':
+    if first.entity_type == 'MISC' and second.entity_type == 'ORGANIZATION':
         return 'misc_organization_cluster'
-    if first.type == 'ORGANIZATION' and second.type == 'MISC':
+    if first.entity_type == 'ORGANIZATION' and second.entity_type == 'MISC':
         return 'organization_misc_cluster'
-    if first.type == 'MISC' and second.type == 'MISC':
+    if first.entity_type == 'MISC' and second.entity_type == 'MISC':
         return 'misc_misc_cluster'
 
 
 def is_interesting_entity(entity):
-    return entity.type in interesting_entity_types
+    return entity.entity_type in interesting_entity_types
 
-
-def seek_common_relations():
-    for key, value in clusters.items():
-        for item in value:
-            if item['relation_text'] in predefined_relations:
-                relations.append(
-                    Relation(item['entities'][0], item['entities'][1], item['relation_text']))
+def seek_common_relations(possible_relations):
+    fixed_relations = []
+    for relation in possible_relations:
+            if relation.full_relation_text in predefined_relations:
+                fixed_relations.append(
+                    Relation(relation.first_entity,relation.second_entity,relation.full_relation_text))
+    return fixed_relations

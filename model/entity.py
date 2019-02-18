@@ -3,10 +3,10 @@ import faust
 class Entity(faust.Record,serializer='json'):
     entity_type :str
     text :str
-    index :int
+    position :int
 
     def __str__(self):
-        return u'type: {self.entity_type}, text: {self.text}, index: {self.index}'.format(self=self)
+        return u'type: {self.entity_type}, text: {self.text}, position: {self.position}'.format(self=self)
 
     def __eq__(self, other):
         if self.entity_type == other.entity_type:
