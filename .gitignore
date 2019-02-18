@@ -1,3 +1,5 @@
 .DS_Store
 *.pyc
 .vscode/
+entity-bootstrap.sh
+delete-topics.sh
