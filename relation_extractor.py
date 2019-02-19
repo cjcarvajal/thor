@@ -17,23 +17,6 @@ interesting_entity_types = ['TITLE', 'PERCENT',
 predefined_relations = ['y','responde por', 'cuando dices q',
                         'pintaron de negro', 'debe estar q se revienta de la ira, porq el']
 
-clusters = {
-    'person_person_cluster': [],
-    'person_organization_cluster': [],
-    'organization_person_cluster': [],
-    'organization_organization_cluster': [],
-    'person_title_cluster': [],
-    'title_person_cluster': [],
-    'person_criminal_charge_cluster': [],
-    'person_misc_cluster': [],
-    'misc_person': [],
-    'misc_organization_cluster': [],
-    'organization_misc_cluster': [],
-    'misc_misc_cluster': []
-}
-
-relations = []
-
 spanish_stopwords = stopwords.words('spanish')
 
 non_words = list(punctuation)
@@ -41,7 +24,6 @@ non_words.extend(['¿', '¡'])
 non_words.extend(map(str, range(10)))
 
 stemmer = SnowballStemmer('spanish')
-
 
 def tokenize(text):
     text = ''.join([c for c in text if c not in non_words])
@@ -90,23 +72,26 @@ def remove_punctuation(dirty_string):
 def discover_relations(tweets):
     possible_relations =  get_possible_relations(tweets)
     fixed_relations = seek_common_relations(possible_relations)
-    return possible_relations,fixed_relations
-    '''
-    create_clusters(tweets)
-    seek_common_relations()
-    for key, value in clusters.items():
-        corpus = [o['cleaned_relation_text'] for o in value]
+
+    grouped_relations = group_relations_by_type(possible_relations)
+    relations_by_clusters = create_clusters(grouped_relations)
+
+    return possible_relations,fixed_relations,relations_by_clusters
+
+def create_clusters(grouped_relations):
+    relations = []
+    for key, value in grouped_relations.items():
+        corpus = [o.clean_relation_text for o in value if o.clean_relation_text]
         if not corpus or len(corpus) < 2:
             print ('Empty corpus')
             continue
+        print (corpus)
         X = vectorizer.fit_transform(corpus)
         Z = linkage(X.toarray(), 'single', 'cosine')
         k = 20000
         discovered_clusters = fcluster(Z, k, criterion='maxclust')
-        getCommonWordsFromCluster(value, discovered_clusters)
-    print (relations)
-    return clusters
-    '''
+        relations.append(getRelationsFromClusters(value, discovered_clusters))
+    return relations
 
 def get_possible_relations(tweets):
     possible_relations = []
@@ -124,46 +109,40 @@ def get_possible_relations(tweets):
                     print(e)
     return possible_relations
 
+def group_relations_by_type(possible_relations):
+    groups = {}
+    for relation in possible_relations:
+        first = relation.first_entity
+        second = relation.second_entity
+        if (is_interesting_entity(first) and is_interesting_entity(second)):
+            group_key = get_cluster_type(first,second)
+            if group_key:
+                if group_key in groups:
+                    groups.get(group_key).append(relation)
+                else:
+                    groups[group_key] = [relation]
+    return groups
 
-def getCommonWordsFromCluster(segmented_cluster, clusters_by_element):
+def getRelationsFromClusters(grouped_relations, clusters_by_element):
 
+    relations = []
     clusters_content = {}
     for index, element in enumerate(clusters_by_element):
         if element in clusters_content:
             clusters_content[element] += ' ' + \
-                segmented_cluster[index]['cleaned_relation_text']
+                grouped_relations[index].clean_relation_text
         else:
-            clusters_content[element] = segmented_cluster[index]['cleaned_relation_text']
+            clusters_content[element] = grouped_relations[index].clean_relation_text
 
     for key in clusters_content:
         counter = Counter(clusters_content[key].split())
         clusters_content[key] = counter.most_common(10)
 
     for index, element in enumerate(clusters_by_element):
-        segmented_cluster[index]['cluster'] = clusters_content[element]
-
-
-def create_clusters(tweets):
-    for tweet in tweets:
-        entities_for_relations = [
-            entity for entity in tweet.nee_entities if is_interesting_entity(entity)]
-        if entities_for_relations:
-            for first, second in zip(entities_for_relations, entities_for_relations[1:]):
-                cluster = clusters.get(get_cluster_type(first, second))
-                try:
-                    text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
-                        first.text)):tweet.full_text.index(second.text)]
-                    cleaned_text = remove_stop_words(text_in_between)
-                    cleaned_text = remove_punctuation(cleaned_text)
-                    if cleaned_text and cleaned_text.strip():
-                        cluster.append({'cleaned_relation_text': cleaned_text,
-                                        'relation_text': text_in_between.strip(),
-                                        'entities': [first, second],
-                                        'tweet': tweet
-                                        })
-                except Exception as e:
-                    print(e)
-
+        posible_relation = grouped_relations[index]
+        relation_words = ' '.join( v[0] for v in clusters_content[element])
+        relations.append(Relation(posible_relation.first_entity,posible_relation.second_entity,relation_words,posible_relation.tweet))
+    return relations
 
 def get_cluster_type(first, second):
     if first.entity_type == 'PERSON' and second.entity_type == 'PERSON':
@@ -200,5 +179,5 @@ def seek_common_relations(possible_relations):
     for relation in possible_relations:
             if relation.full_relation_text in predefined_relations:
                 fixed_relations.append(
-                    Relation(relation.first_entity,relation.second_entity,relation.full_relation_text))
+                    Relation(relation.first_entity,relation.second_entity,relation.full_relation_text,[relation.tweet]))
     return fixed_relations

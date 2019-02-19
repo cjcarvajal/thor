@@ -49,7 +49,7 @@ async def extract_entities(tweets):
 @app.agent(relation_extraction_topic)
 async def extract_relations(processed_tweets):
     async for group in processed_tweets:
-        posible,fixed = relation_extractor.discover_relations(group.tweets)
-        print (posible)
+        posible,fixed,clusters = relation_extractor.discover_relations(group.tweets)
         print ('***********************************')
-        print (fixed)
+        print (clusters)
+
