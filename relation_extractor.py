@@ -78,21 +78,6 @@ def discover_relations(tweets):
 
     return possible_relations,fixed_relations,relations_by_clusters
 
-def create_clusters(grouped_relations):
-    relations = []
-    for key, value in grouped_relations.items():
-        corpus = [o.clean_relation_text for o in value if o.clean_relation_text]
-        if not corpus or len(corpus) < 2:
-            print ('Empty corpus')
-            continue
-        print (corpus)
-        X = vectorizer.fit_transform(corpus)
-        Z = linkage(X.toarray(), 'single', 'cosine')
-        k = 20000
-        discovered_clusters = fcluster(Z, k, criterion='maxclust')
-        relations.append(getRelationsFromClusters(value, discovered_clusters))
-    return relations
-
 def get_possible_relations(tweets):
     possible_relations = []
     for tweet in tweets:
@@ -109,6 +94,14 @@ def get_possible_relations(tweets):
                     print(e)
     return possible_relations
 
+def seek_common_relations(possible_relations):
+    fixed_relations = []
+    for relation in possible_relations:
+            if relation.full_relation_text in predefined_relations:
+                fixed_relations.append(
+                    Relation(relation.first_entity,relation.second_entity,relation.full_relation_text,[relation.tweet]))
+    return fixed_relations
+
 def group_relations_by_type(possible_relations):
     groups = {}
     for relation in possible_relations:
@@ -122,6 +115,21 @@ def group_relations_by_type(possible_relations):
                 else:
                     groups[group_key] = [relation]
     return groups
+
+def create_clusters(grouped_relations):
+    relations = []
+    for key, value in grouped_relations.items():
+        corpus = [o.clean_relation_text for o in value if o.clean_relation_text]
+        if not corpus or len(corpus) < 2:
+            print ('Empty corpus')
+            continue
+        print (corpus)
+        X = vectorizer.fit_transform(corpus)
+        Z = linkage(X.toarray(), 'single', 'cosine')
+        k = 20000
+        discovered_clusters = fcluster(Z, k, criterion='maxclust')
+        relations.append(getRelationsFromClusters(value, discovered_clusters))
+    return relations
 
 def getRelationsFromClusters(grouped_relations, clusters_by_element):
 
@@ -173,11 +181,3 @@ def get_cluster_type(first, second):
 
 def is_interesting_entity(entity):
     return entity.entity_type in interesting_entity_types
-
-def seek_common_relations(possible_relations):
-    fixed_relations = []
-    for relation in possible_relations:
-            if relation.full_relation_text in predefined_relations:
-                fixed_relations.append(
-                    Relation(relation.first_entity,relation.second_entity,relation.full_relation_text,[relation.tweet]))
-    return fixed_relations
