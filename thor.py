@@ -1,11 +1,12 @@
 import asyncio
 
-import tweet_retreiver
+import twitter_client
 from heimdall import start_processing
 from model.tweet import Tweet
 
+
 async def analyze_tweets() -> None:
-    tweets = tweet_retreiver.request_tweets('Hidroituango')
+    tweets = twitter_client.request_tweets('Uribe')
     for tweet in tweets:
         await start_processing.cast(tweet)
 

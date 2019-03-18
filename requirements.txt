@@ -4,3 +4,5 @@ pip3 install requests
 pip3 install nltk
 pip3 install sklearn
 pip3 install faust
+pip3 install unidecode
+pip3 install sparqlwrapper
