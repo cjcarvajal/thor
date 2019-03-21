@@ -32,10 +32,10 @@ class PersonalKnowledge:
 
     def discover_semantic_relation(self, ranked_entity):
         try:
-            return self.__query_info(ranked_entity)
+            return 'ok',self.__query_info(ranked_entity)
         except Exception as e:
             print(e)
-        return None
+        return 'fail',None
 
     def __get_tf(self, entities_to_search):
         tf_map = {}
@@ -61,7 +61,6 @@ class PersonalKnowledge:
 
     def __query_info(self, entity):
         cleaned_text = self.__clean_text(entity.text)
-        print(cleaned_text)
         if entity.entity_type == 'PERSON':
             return self.__get_semantic_relations_for_person(cleaned_text)
         return []

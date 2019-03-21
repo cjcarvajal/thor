@@ -13,7 +13,7 @@ from model.possible_relation import PossibleRelation
 
 interesting_entity_types = ['TITLE', 'PERCENT',
                             'MISC', 'PERSON', 'CRIMINAL_CHARGE', 'ORGANIZATION']
-
+                            
 predefined_relations = ['y', 'responde por', 'cuando dices q',
                         'pintaron de negro', 'debe estar q se revienta de la ira, porq el']
 
@@ -80,21 +80,20 @@ def discover_relations(tweets):
     return possible_relations, fixed_relations, relations_by_clusters
 
 
-def get_possible_relations(tweets):
+def get_possible_relations(tweet):
     possible_relations = []
-    for tweet in tweets:
-        entities_for_relations = tweet.nee_entities
-        if entities_for_relations:
-            for first, second in zip(entities_for_relations, entities_for_relations[1:]):
-                try:
-                    text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
-                        first.text)):tweet.full_text.index(second.text)]
-                    cleaned_text = remove_stop_words(text_in_between)
-                    cleaned_text = remove_punctuation(cleaned_text)
-                    possible_relations.append(PossibleRelation(
-                        text_in_between.strip(), cleaned_text, first, second, tweet))
-                except Exception as e:
-                    print(e)
+    entities_for_relations = tweet.nee_entities
+    if entities_for_relations:
+        for first, second in zip(entities_for_relations, entities_for_relations[1:]):
+            try:
+                text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
+                    first.text)):tweet.full_text.index(second.text)]
+                cleaned_text = remove_stop_words(text_in_between)
+                cleaned_text = remove_punctuation(cleaned_text)
+                possible_relations.append(PossibleRelation(
+                    text_in_between.strip(), cleaned_text, first, second, tweet))
+            except Exception as e:
+                print(e)
     return possible_relations
 
 
@@ -121,6 +120,7 @@ def seek_common_relations(grouped_relations):
                 fixed_relations.append(Relation(
                     relation.first_entity, relation.second_entity, relation.full_relation_text, [relation.tweet]))
     return fixed_relations
+
 
 def create_clusters(grouped_relations):
     relations = []
