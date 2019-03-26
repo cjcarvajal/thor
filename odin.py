@@ -11,12 +11,11 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from model.relation import Relation
 from model.possible_relation import PossibleRelation
 
-predefined_relations = ['y']
+predefined_relations = []
 
 
 def seek_common_relations(possible_relation, interesting_entity_types):
 
-    #print(possible_relation)
     if (possible_relation.first_entity.entity_type in interesting_entity_types and
             possible_relation.second_entity.entity_type in interesting_entity_types):
         if possible_relation.full_relation_text in predefined_relations:

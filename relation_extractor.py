@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import numpy as np
+
 from string import punctuation
 from collections import Counter
 
@@ -13,9 +15,6 @@ from model.possible_relation import PossibleRelation
 
 interesting_entity_types = ['TITLE', 'PERCENT',
                             'MISC', 'PERSON', 'CRIMINAL_CHARGE', 'ORGANIZATION']
-                            
-predefined_relations = ['y', 'responde por', 'cuando dices q',
-                        'pintaron de negro', 'debe estar q se revienta de la ira, porq el']
 
 spanish_stopwords = stopwords.words('spanish')
 
@@ -70,14 +69,12 @@ def remove_punctuation(dirty_string):
     return dirty_string
 
 
-def discover_relations(tweets):
-    possible_relations = get_possible_relations(tweets)
+def discover_relations(possible_relations, cluster_minimun_limit):
     grouped_relations = group_relations_by_type(possible_relations)
+    relations_by_clusters = create_clusters(
+        grouped_relations, cluster_minimun_limit)
 
-    fixed_relations = seek_common_relations(grouped_relations)
-    relations_by_clusters = create_clusters(grouped_relations)
-
-    return possible_relations, fixed_relations, relations_by_clusters
+    return relations_by_clusters
 
 
 def get_possible_relations(tweet):
@@ -88,10 +85,10 @@ def get_possible_relations(tweet):
             try:
                 text_in_between = tweet.full_text[(tweet.full_text.index(first.text) + len(
                     first.text)):tweet.full_text.index(second.text)]
-                cleaned_text = remove_stop_words(text_in_between)
-                cleaned_text = remove_punctuation(cleaned_text)
+                cleaned_text = remove_punctuation(text_in_between)
+                cleaned_text = remove_stop_words(cleaned_text)
                 possible_relations.append(PossibleRelation(
-                    text_in_between.strip(), cleaned_text, first, second, tweet))
+                    text_in_between.strip(), cleaned_text.strip(), first, second, tweet))
             except Exception as e:
                 print(e)
     return possible_relations
@@ -109,20 +106,10 @@ def group_relations_by_type(possible_relations):
                     groups.get(group_key).append(relation)
                 else:
                     groups[group_key] = [relation]
-    return groups
+    return groups   
 
 
-def seek_common_relations(grouped_relations):
-    fixed_relations = []
-    for key, value in grouped_relations.items():
-        for relation in value:
-            if relation.full_relation_text in predefined_relations:
-                fixed_relations.append(Relation(
-                    relation.first_entity, relation.second_entity, relation.full_relation_text, [relation.tweet]))
-    return fixed_relations
-
-
-def create_clusters(grouped_relations):
+def create_clusters(grouped_relations, cluster_minimun_limit):
     relations = []
     for key, value in grouped_relations.items():
         corpus = [o.clean_relation_text for o in value if o.clean_relation_text]
@@ -130,18 +117,30 @@ def create_clusters(grouped_relations):
             print('Empty corpus')
             continue
         X = vectorizer.fit_transform(corpus)
+        print('corpus')
+        print(corpus)
         Z = linkage(X.toarray(), 'single', 'cosine')
         k = 20000
         discovered_clusters = fcluster(Z, k, criterion='maxclust')
-        relations.append(getRelationsFromClusters(value, discovered_clusters))
+        relations.append(getRelationsFromClusters(
+            value, discovered_clusters, cluster_minimun_limit))
     return relations
 
 
-def getRelationsFromClusters(grouped_relations, clusters_by_element):
+def getRelationsFromClusters(grouped_relations, clusters_by_element, cluster_minimun_limit):
 
     relations = []
     clusters_content = {}
+
+    # Filters the clusters according to the number of instances in each one
+    unique, counts = np.unique(clusters_by_element, return_counts=True)
+    pre_filtered_clusters = dict(zip(unique, counts))
+    filtered_clusters = dict(
+        [(k, r) for k, r in pre_filtered_clusters.items() if r > cluster_minimun_limit])
+
     for index, element in enumerate(clusters_by_element):
+        if element not in filtered_clusters:
+            continue
         if element in clusters_content:
             clusters_content[element] += ' ' + \
                 grouped_relations[index].clean_relation_text
@@ -153,10 +152,12 @@ def getRelationsFromClusters(grouped_relations, clusters_by_element):
         clusters_content[key] = counter.most_common(10)
 
     for index, element in enumerate(clusters_by_element):
+        if element not in filtered_clusters:
+            continue
         posible_relation = grouped_relations[index]
         relation_words = ' '.join(v[0] for v in clusters_content[element])
         relations.append(Relation(posible_relation.first_entity,
-                                  posible_relation.second_entity, relation_words, posible_relation.tweet))
+                                  posible_relation.second_entity, relation_words, [posible_relation.tweet]))
     return relations
 
 

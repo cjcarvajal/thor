@@ -4,8 +4,10 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from gems import *
 from model.relation import Relation
 from model.entity import Entity
+from string import punctuation
 
-endpoint_url = "https://query.wikidata.org/sparql"
+wikidata_endpoint_url = "https://query.wikidata.org/sparql"
+dbpedia_endpoint_url = "http://es.dbpedia.org/sparql"
 
 
 class PersonalKnowledge:
@@ -32,10 +34,10 @@ class PersonalKnowledge:
 
     def discover_semantic_relation(self, ranked_entity):
         try:
-            return 'ok',self.__query_info(ranked_entity)
+            return 'ok', self.__query_info(ranked_entity)
         except Exception as e:
             print(e)
-        return 'fail',None
+        return 'fail', None
 
     def __get_tf(self, entities_to_search):
         tf_map = {}
@@ -62,7 +64,13 @@ class PersonalKnowledge:
     def __query_info(self, entity):
         cleaned_text = self.__clean_text(entity.text)
         if entity.entity_type == 'PERSON':
+            print('aca')
+            print(entity.text)
             return self.__get_semantic_relations_for_person(cleaned_text)
+        if entity.entity_type == 'ORGANIZATION':
+            print('aca2')
+            print(entity.text)
+            return self.__get_semantic_relations_for_organization(cleaned_text)
         return []
 
     def __get_semantic_relations_for_person(self, entity):
@@ -89,9 +97,42 @@ class PersonalKnowledge:
 
         return relation_list
 
+    def __get_semantic_relations_for_organization(self, entity):
+        relation_list = []
+        query_results = self.__get_dbpedia_results(ceo_query.format(entity))
+
+        if query_results['results']['bindings']:
+            ceoUri = query_results['results']['bindings'][0]['ceoUri']
+            if ceoUri['type'] == "typed-literal":
+                cleaned_dbpedia_text = self.__clean_dbpedia_text(
+                    ceoUri['value'])
+                relation_list.append(Relation(Entity(
+                    'ORGANIZATION', entity, -1), Entity('PERSON', cleaned_dbpedia_text, -1), 'dirigida por', []))
+            elif ceoUri['type'] == "uri":
+                name_query_results = self.__get_dbpedia_results(
+                    ceo_name_query.format(ceoUri['value']))
+                if name_query_results['results']['bindings']:
+                    relation_list.append(Relation(Entity(
+                        'ORGANIZATION', entity, -1), Entity('PERSON', name_query_results['results']
+                                                            ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', []))
+        print('descubierta')
+        print(relation_list)
+        return relation_list
+
+    def __clean_dbpedia_text(self, text):
+        translator = str.maketrans('', '', punctuation)
+        return text.translate(translator)
+
     def __get_results(self, query):
-        sparql = SPARQLWrapper(endpoint_url)
+        sparql = SPARQLWrapper(wikidata_endpoint_url)
         sparql.setTimeout(2)
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        return sparql.query().convert()
+
+    def __get_dbpedia_results(self, query):
+        sparql = SPARQLWrapper(dbpedia_endpoint_url)
+        sparql.setTimeout(12)
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)
         return sparql.query().convert()

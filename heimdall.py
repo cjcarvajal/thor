@@ -20,6 +20,9 @@ relation_seeker_threshold = 100
 semantic_enrichment_threshold = 100
 semantic_enrichment_time_out = 60
 
+cluster_relations_threshold = 5000
+cluster_minimun_limit = 50
+
 semantic_enrichment_popular_selector = 0.06
 semantic_enrichment_unusual_selector = 0.016
 
@@ -43,7 +46,7 @@ possible_relation_extraction_topic = app.topic(
 common_relation_extraction_topic = app.topic(
     'common_relation_extraction', value_type=PossibleRelation)
 cluster_relation_extraction_topic = app.topic(
-    'cluster_relation_extraction', value_type=Tweet)
+    'cluster_relation_extraction', value_type=PossibleRelation)
 
 
 semantic_relation_topic = app.topic(
@@ -53,6 +56,7 @@ thor_table = app.Table(
     name='last_supper', default=list, partitions=1)
 visited_entities_key = 'visited_entities'
 relations_key = 'relations'
+account_resolved_key = 'account_resolved'
 
 
 @app.agent(principal_topic, sink=[entity_extraction_topic])
@@ -71,7 +75,15 @@ async def extract_entities(tweets):
 @app.agent(entities_unification_topic, sink=[entity_ranking_topic, possible_relation_extraction_topic])
 async def unify_entities(tweets):
     async for tweet in tweets:
-        tweet = entity_unifier.unify_entities_on_tweet(tweet)
+        persisted_accounts = thor_table[account_resolved_key]
+
+        if not persisted_accounts:
+            persisted_accounts = {}
+
+        tweet = entity_unifier.unify_entities_on_tweet(
+            tweet, persisted_accounts)
+
+        thor_table[account_resolved_key] = persisted_accounts
         yield tweet
 
 
@@ -89,12 +101,12 @@ async def rank_entities(tweets_stream):
 async def discover_semantic_relations(entities):
     async for entity in entities:
         visited_entities = thor_table[visited_entities_key]
-        saved_relations = thor_table[relations_key]
+        saved_relations = set(thor_table[relations_key])
         if not visited_entities:
             visited_entities = []
 
         if not saved_relations:
-            saved_relations = []
+            saved_relations = set([])
 
         if entity in visited_entities:
             continue
@@ -106,12 +118,12 @@ async def discover_semantic_relations(entities):
                 thor_table[visited_entities_key] = visited_entities
                 if relations:
                     for relation in relations:
-                        saved_relations.append(relation)
+                        saved_relations.add(relation)
 
-        thor_table[relations_key] = saved_relations
+        thor_table[relations_key] = list(saved_relations)
 
 
-@app.agent(possible_relation_extraction_topic, sink=[common_relation_extraction_topic])
+@app.agent(possible_relation_extraction_topic, sink=[common_relation_extraction_topic, cluster_relation_extraction_topic])
 async def get_possible_relations(processed_tweets):
     async for tweet in processed_tweets:
         posible_relations = relation_extractor.get_possible_relations(tweet)
@@ -122,15 +134,25 @@ async def get_possible_relations(processed_tweets):
 @app.agent(common_relation_extraction_topic)
 async def extract_common_relations(possible_relations_stream):
     async for possible_relation in possible_relations_stream:
+        saved_relations = set(thor_table[relations_key])
+
+        if not saved_relations:
+            saved_relations = set([])
+
         relation = odin.seek_common_relations(
             possible_relation, interesting_entity_types)
-        print(relation)
+
+        if relation:
+            saved_relations.add(relation)
+            thor_table[relations_key] = list(saved_relations)
 
 
 @app.agent(cluster_relation_extraction_topic)
-async def extract_relations_by_clustering(processed_tweets):
-    async for group in processed_tweets:
-        posible, fixed, clusters = relation_extractor.discover_relations(
-            group.tweets)
-        print('***********************************')
-        print(clusters)
+async def extract_relations_by_clustering(possible_relations_stream):
+    async for possible_relations in possible_relations_stream.take(cluster_relations_threshold, None):
+        print('Threshold for cluster relations reached')
+        print('Creating clusters')
+        relations_by_clusters = relation_extractor.discover_relations(
+            possible_relations, cluster_minimun_limit)
+        print('Relations by clusters')
+        print(relations_by_clusters)
