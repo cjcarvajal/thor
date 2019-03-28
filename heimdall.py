@@ -1,6 +1,7 @@
 from typing import List
 
 import faust
+import twitter_client
 
 from entity_extractor import EntityExtractor
 from lagertha import PersonalKnowledge
@@ -156,3 +157,17 @@ async def extract_relations_by_clustering(possible_relations_stream):
             possible_relations, cluster_minimun_limit)
         print('Relations by clusters')
         print(relations_by_clusters)
+
+
+@app.page('/relations')
+async def get_relations(web, request):
+    return web.json({'some': thor_table[relations_key]})
+
+
+@app.page('/query/{keyword}')
+async def analyze_tweets(web, request, keyword) -> None:
+    print(keyword)
+    tweets = twitter_client.request_tweets('Uribe')
+    for tweet in tweets:
+        await start_processing.cast(tweet)
+    return web.json({'response': 'ok'})

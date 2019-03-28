@@ -7,13 +7,12 @@ import time
 
 
 async def analyze_tweets() -> None:
-    tweets = twitter_client.request_tweets('bancolombia')
+    tweets = twitter_client.request_tweets('Uribe')
     for tweet in tweets:
         await start_processing.cast(tweet)
 
+'''
 if __name__ == '__main__':
-    for i in range(1,2):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(analyze_tweets())
-        print('go')
-        time.sleep(60)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(analyze_tweets())
+'''
