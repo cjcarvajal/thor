@@ -11,7 +11,7 @@
 		<div>
 			<label>Ingresa el termino de consulta</label>
 			<input type="text" id="query_term" />
-			<button type="button" id="_btn" onclick="startQuery()">Buscar</button>
+			<button type="button" id="query_btn" onclick="startAnalysis()">Buscar</button>
 		</div>
 		<div>
 			<p>Elije uno de los siguientes temas:</p>
@@ -22,7 +22,11 @@
 				<li>Santos</li>
 			</ul>
 		</div>
+		<div>
+			<button type="button" id="refresh_btn" onclick="getRelations()">Refrescar</button>
+		</div>
 	</form>
 </body>
 <script src="./controller/main.js"></script>
+
 </html>

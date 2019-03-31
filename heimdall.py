@@ -2,6 +2,7 @@ from typing import List
 
 import faust
 import twitter_client
+import aiohttp_cors
 
 from entity_extractor import EntityExtractor
 from lagertha import PersonalKnowledge
@@ -33,7 +34,10 @@ interesting_entity_types = ['TITLE', 'PERCENT',
 app = faust.App(
     'bifrost',
     broker='kafka://localhost:9092',
-    value_serializer='raw'
+    value_serializer='raw',
+    cors_options={'http://localhost:8000/': aiohttp_cors.ResourceOptions(
+        expose_headers="*",
+        allow_headers="*")}
 )
 
 principal_topic = app.topic('principal', value_type=Tweet)
@@ -161,13 +165,13 @@ async def extract_relations_by_clustering(possible_relations_stream):
 
 @app.page('/relations')
 async def get_relations(web, request):
-    return web.json({'some': thor_table[relations_key]})
+    return web.json({'relations': thor_table[relations_key]}, headers={'Access-Control-Allow-Origin': '*'})
 
 
 @app.page('/query/{keyword}')
-async def analyze_tweets(web, request, keyword) -> None:
-    print(keyword)
-    tweets = twitter_client.request_tweets('Uribe')
+async def analyze_tweets(self, request, keyword) -> None:
+    print('Starting analysis for {}'.format(keyword))
+    tweets = twitter_client.request_tweets(keyword)
     for tweet in tweets:
         await start_processing.cast(tweet)
-    return web.json({'response': 'ok'})
+    return self.json({'response': 'ok'}, headers={'Access-Control-Allow-Origin': '*'})
