@@ -20,6 +20,46 @@ function sendQuery() {
 function getRelations() {
     fetch(relations_url).then(data => {
         return data.json()
-    }).then(res => console.log(res));
+    }).then(res => createGraph(res));
     sendQuery();
+}
+
+function createGraph(relations) {
+    nodes = [];
+    links = [];
+    relations.relations.forEach(
+        function (element) {
+            const entityOriginNode = {
+                'type': element.entity_origin.entity_type,
+                'text': element.entity_origin.text
+            };
+
+            const entityEndNode = {
+                'type': element.entity_end.entity_type,
+                'text': element.entity_end.text
+            }
+
+            const entityRelation = {
+                'source': entityOriginNode.text,
+                'target': entityEndNode.text,
+                'relation': element.relation_text
+            }
+
+            if (_.findWhere(nodes, entityOriginNode) == null) {
+                nodes.push(entityOriginNode);
+            }
+
+            if (_.findWhere(nodes, entityEndNode) == null) {
+                nodes.push(entityEndNode);
+            }
+
+            if (_.findWhere(links, entityRelation) == null) {
+                links.push(entityRelation);
+            }
+        }
+    );
+
+    console.log(nodes);
+    console.log(links);
+    drawGraph(nodes, links);
 }
