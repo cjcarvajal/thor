@@ -58,8 +58,5 @@ function createGraph(relations) {
             }
         }
     );
-
-    console.log(nodes);
-    console.log(links);
-    drawGraph(nodes, links);
+    drawOverviewGraph(nodes, links);
 }

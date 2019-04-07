@@ -1,7 +1,9 @@
 
-const width = 960;
+const width = 432;
 const height = 700;
-const svg = d3.select("#principal");
+const svg = d3.select("#overview");
+const detailedSvg = d3.select('#detail');
+
 const transform = d3.zoomIdentity;
 
 const linkDistance = 10;
@@ -22,7 +24,7 @@ function zoomed() {
     bigG.attr("transform", d3.event.transform);
 }
 
-function drawGraph(nodes, links) {
+function drawOverviewGraph(nodes, links) {
     bigG.selectAll("*").remove();
     var simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink().id(function (d) { return d.text; }))
@@ -57,8 +59,6 @@ function drawGraph(nodes, links) {
             .on('drag', dragged)
             .on('end', dragended));
 
-    //const labels = node.append('text').text(d => { return d.text }).attr('x', 6).attr('y', 3);
-
     function ticked() {
 
         link
@@ -91,13 +91,45 @@ function drawGraph(nodes, links) {
 
     bigG.on("mousemove", function () {
         var mouse = d3.mouse(this);
-        console.log(mouse[0], mouse[1]);
-        filterNodes(mouse[0], mouse[1]);
+        detailedNodes = filterNodes(mouse[0], mouse[1]);
+        detailedLinks = filterLinks(mouse[0], mouse[1]);
+        drawDetailedGraph(detailedNodes, detailedLinks);
     })
 
     function filterNodes(xPos, yPos) {
         filteredNodes = nodes.filter(n => (Math.abs(xPos - n.x) < rectangleZoomWidth) &&
             (Math.abs(yPos - n.y) < rectangleZoomWidth));
-        console.log(filteredNodes);
+
+        newGraphNodes = [];
+        filteredNodes.forEach(node => {
+            newGraphNodes.push({
+                'type': node.type,
+                'text': node.text,
+                'vx': node.vx,
+                'vy': node.vy,
+                'x': node.x,
+                'y': node.y
+            });
+        });
+        return newGraphNodes;
+    }
+
+    function filterLinks(xPos, yPos) {
+        filteredLinks = links.filter(n =>
+            ((Math.abs(xPos - n.source.x) < rectangleZoomWidth) &&
+                (Math.abs(yPos - n.source.y) < rectangleZoomWidth)) &&
+            ((Math.abs(xPos - n.target.x) < rectangleZoomWidth) &&
+                (Math.abs(yPos - n.target.y) < rectangleZoomWidth))
+        );
+        newGraphLinks = [];
+        filteredLinks.forEach(link => {
+            newGraphLinks.push({
+                'source': link.source.text,
+                'target': link.target.text,
+                'relation': link.relation
+            });
+        });
+        return newGraphLinks;
+
     }
 }
