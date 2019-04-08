@@ -1,6 +1,32 @@
+body {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-size: 14px;
+}
+
 .container {
+    padding: 20px;
+}
+
+.col_container {
+    margin-top: 20px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+}
+
+.checkbox_container {
+    margin-top: 20px;
+    width:80%;
+}
+
+.filter_container {
+    width: 100%;
+    display: flex;
+}
+
+.checkbox_options_container {
+    width: 270px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .border_view {

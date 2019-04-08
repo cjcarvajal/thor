@@ -45,7 +45,7 @@ function drawDetailedGraph(nodes, links) {
         .enter()
         .append('g');
 
-    var circles = node.append('circle')
+    const circles = node.append('circle')
         .attr('r', detailedNodeRadius)
         .attr('fill', d => { return colorScale(d.type) })
         .attr('cx', d => { return xScale(d.x) })
