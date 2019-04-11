@@ -9,16 +9,36 @@ const transform = d3.zoomIdentity;
 const linkDistance = 10;
 const nodeRadius = 5;
 
-const colorScale = d3.scaleOrdinal(d3.schemeSet1);
+const colorScale = d3.scaleOrdinal(d3.schemePaired);
+colorScale.domain(['CAUSE_OF_DEATH', 'TITLE', 'CRIMINAL_CHARGE',
+    'RELIGION', 'MISC', 'NUMBER', 'PERSON', 'LOCATION', 'ORGANIZATION',
+    'DATE', 'NATIONALITY', 'IDEOLOGY']);
 
 const bigG = svg.append("g");
-
-const rectangleZoomWidth = 100;
-const rectangleZoomHeight = 100;
 
 svg.call(d3.zoom()
     .scaleExtent([1 / 2, 8])
     .on("zoom", zoomed));
+
+svg.on("mousemove", function () {
+    var mouse = d3.mouse(this);
+    actualXPos = mouse[0];
+    actualYPos = mouse[1];
+    svg.selectAll("rect").remove();
+
+    svg.append("rect")
+        .attr("x", actualXPos - rectangleZoomWidth / 2)
+        .attr("y", actualYPos - rectangleZoomWidth / 2)
+        .attr("width", rectangleZoomWidth)
+        .attr("height", rectangleZoomWidth)
+        .style("fill", "none")
+        .style("stroke", "black")
+});
+
+svg.on("mouseleave", function () {
+    svg.selectAll(".day_label").remove();
+    svg.selectAll("rect").remove();
+})
 
 function zoomed() {
     bigG.attr("transform", d3.event.transform);
@@ -97,6 +117,7 @@ function drawOverviewGraph(nodes, links) {
     })
 
     function filterNodes(xPos, yPos) {
+        console.log(rectangleZoomWidth);
         filteredNodes = nodes.filter(n => (Math.abs(xPos - n.x) < rectangleZoomWidth) &&
             (Math.abs(yPos - n.y) < rectangleZoomWidth));
 
@@ -133,3 +154,50 @@ function drawOverviewGraph(nodes, links) {
 
     }
 }
+
+//Draw legend
+const entityTypes = [
+    { 'type': 'CAUSE_OF_DEATH', 'value': 'Causa de muerte' },
+    { 'type': 'TITLE', 'value': 'Cargo' },
+    { 'type': 'CRIMINAL_CHARGE', 'value': 'Delito' },
+    { 'type': 'RELIGION', 'value': 'Religión' },
+    { 'type': 'MISC', 'value': 'Otros' },
+    { 'type': 'NUMBER', 'value': 'Número' },
+    { 'type': 'PERSON', 'value': 'Personas' },
+    { 'type': 'LOCATION', 'value': 'Lugar' },
+    { 'type': 'ORGANIZATION', 'value': 'Organización' },
+    { 'type': 'DATE', 'value': 'Fecha' },
+    { 'type': 'NATIONALITY', 'value': 'Nacionalidad' },
+    { 'type': 'IDEOLOGY', 'value': 'Idelología' }];
+
+const legendNodeRadius = 8;
+const legendSvg = d3.select("#nodesLegend");
+const upperMargin = 30;
+const legendTextUpperMargin = upperMargin + 4;
+legendCircles = legendSvg.selectAll("circle")
+    .data(entityTypes)
+    .enter();
+
+legendCircles.append('circle')
+    .attr('r', legendNodeRadius)
+    .attr('fill', d => { return colorScale(d.type) })
+    .attr("cx", function (d, i) { if (i < 6) return 30; else return 200; })
+    .attr("cy", function (d, i) {
+        if (i < 6) {
+            return (i * 3 * legendNodeRadius) + upperMargin;
+        } else {
+            return ((i - 6) * 3 * legendNodeRadius) + upperMargin;
+        }
+    })
+
+legendCircles.append('text')
+    .text(d => d.value)
+    .attr('x', function (d, i) { if (i < 6) return 45; else return 215; })
+    .attr('y', function (d, i) {
+        if (i < 6) {
+            return i * 3 * legendNodeRadius + legendTextUpperMargin;
+        } else {
+            return (i - 6) * 3 * legendNodeRadius + legendTextUpperMargin;
+        }
+    })
+

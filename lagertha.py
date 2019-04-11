@@ -64,12 +64,8 @@ class PersonalKnowledge:
     def __query_info(self, entity):
         cleaned_text = self.__clean_text(entity.text)
         if entity.entity_type == 'PERSON':
-            print('aca')
-            print(entity.text)
             return self.__get_semantic_relations_for_person(cleaned_text)
         if entity.entity_type == 'ORGANIZATION':
-            print('aca2')
-            print(entity.text)
             return self.__get_semantic_relations_for_organization(cleaned_text)
         return []
 
@@ -115,8 +111,7 @@ class PersonalKnowledge:
                     relation_list.append(Relation(Entity(
                         'ORGANIZATION', entity, -1), Entity('PERSON', name_query_results['results']
                                                             ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', []))
-        print('descubierta')
-        print(relation_list)
+
         return relation_list
 
     def __clean_dbpedia_text(self, text):

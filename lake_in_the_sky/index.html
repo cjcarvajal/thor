@@ -38,62 +38,61 @@
 				<fieldset>
 					<legend>Filtrar por nodo origen</legend>
 					<p>
-						<caption>Confundido? Aca una pequeña guía que te puede ayudar</caption>
+						<caption>Selecciona los nodos origen según su tipo</caption>
 					</p>
 					<div class="checkbox_options_container">
 						<div>
-							<input type="checkbox" value="CITY" id="entity_origin_1">Ciudad<br>
-							<input type="checkbox" value="CAUSE_OF_DEATH" id="entity_origin_2">Causa de muerte<br>
-							<input type="checkbox" value="TITLE" id="entity_origin_3">Cargo<br>
-							<input type="checkbox" value="COUNTRY" id="entity_origin_4">País<br>
-							<input type="checkbox" value="CRIMINAL_CHARGE" id="entity_origin_5">Delito<br>
-							<input type="checkbox" value="RELIGION" id="entity_origin_6">Religión<br>
-							<input type="checkbox" value="MISC" id="entity_origin_7">Otros<br>
-							<input type="checkbox" value="NUMBER" id="entity_origin_8">Número<br>
+							<input type="checkbox" value="CAUSE_OF_DEATH" id="entity_origin_1">Causa de muerte<br>
+							<input type="checkbox" value="TITLE" id="entity_origin_2">Cargo<br>
+							<input type="checkbox" value="CRIMINAL_CHARGE" id="entity_origin_3">Delito<br>
+							<input type="checkbox" value="RELIGION" id="entity_origin_4">Religión<br>
+							<input type="checkbox" value="MISC" id="entity_origin_5">Otros<br>
+							<input type="checkbox" value="NUMBER" id="entity_origin_6">Número<br>
 						</div>
 						<div>
-							<input type="checkbox" value="MONEY" id="entity_origin_9">Dinero<br>
-							<input type="checkbox" value="PERSON" id="entity_origin_10">Personas<br>
-							<input type="checkbox" value="LOCATION" id="entity_origin_11">Lugar<br>
-							<input type="checkbox" value="ORGANIZATION" id="entity_origin_12">Organización<br>
-							<input type="checkbox" value="DATE" id="entity_origin_13">Fecha<br>
-							<input type="checkbox" value="NATIONALITY" id="entity_origin_14">Nacionalidad<br>
-							<input type="checkbox" value="PERCENT" id="entity_origin_15">Porcentaje<br>
-							<input type="checkbox" value="IDEOLOGY" id="entity_origin_16">Idelología<br>
+							<input type="checkbox" value="PERSON" id="entity_origin_7">Personas<br>
+							<input type="checkbox" value="LOCATION" id="entity_origin_8">Lugar<br>
+							<input type="checkbox" value="ORGANIZATION" id="entity_origin_9">Organización<br>
+							<input type="checkbox" value="DATE" id="entity_origin_10">Fecha<br>
+							<input type="checkbox" value="NATIONALITY" id="entity_origin_11">Nacionalidad<br>
+							<input type="checkbox" value="IDEOLOGY" id="entity_origin_12">Idelología<br>
 						</div>
 					</div>
 				</fieldset>
 				<fieldset>
 					<legend>Filtrar por nodo destino</legend>
 					<p>
-						<caption>Confundido? Aca una pequeña guía que te puede ayudar</caption>
+						<caption>Selecciona los nodos destino según su tipo</caption>
 					</p>
 					<div class="checkbox_options_container">
 						<div>
-							<input type="checkbox" value="CITY" id="entity_destiny_1">Ciudad<br>
-							<input type="checkbox" value="CAUSE_OF_DEATH" id="entity_destiny_2">Causa de muerte<br>
-							<input type="checkbox" value="TITLE" id="entity_destiny_3">Cargo<br>
-							<input type="checkbox" value="COUNTRY" id="entity_destiny_4">País<br>
-							<input type="checkbox" value="CRIMINAL_CHARGE" id="entity_destiny_5">Delito<br>
-							<input type="checkbox" value="RELIGION" id="entity_destiny_6">Religión<br>
-							<input type="checkbox" value="MISC" id="entity_destiny_7">Otros<br>
-							<input type="checkbox" value="NUMBER" id="entity_destiny_8">Número<br>
+							<input type="checkbox" value="CAUSE_OF_DEATH" id="entity_destiny_1">Causa de muerte<br>
+							<input type="checkbox" value="TITLE" id="entity_destiny_2">Cargo<br>
+							<input type="checkbox" value="CRIMINAL_CHARGE" id="entity_destiny_3">Delito<br>
+							<input type="checkbox" value="RELIGION" id="entity_destiny_4">Religión<br>
+							<input type="checkbox" value="MISC" id="entity_destiny_5">Otros<br>
+							<input type="checkbox" value="NUMBER" id="entity_destiny_6">Número<br>
 						</div>
 						<div>
-							<input type="checkbox" value="MONEY" id="entity_destiny_9">Dinero<br>
-							<input type="checkbox" value="PERSON" id="entity_destiny_10">Personas<br>
-							<input type="checkbox" value="LOCATION" id="entity_destiny_11">Lugar<br>
-							<input type="checkbox" value="ORGANIZATION" id="entity_destiny_12">Organización<br>
-							<input type="checkbox" value="DATE" id="entity_destiny_13">Fecha<br>
-							<input type="checkbox" value="NATIONALITY" id="entity_destiny_14">Nacionalidad<br>
-							<input type="checkbox" value="PERCENT" id="entity_destiny_15">Porcentaje<br>
-							<input type="checkbox" value="IDEOLOGY" id="entity_destiny_16">Idelología<br>
+							<input type="checkbox" value="PERSON" id="entity_destiny_7">Personas<br>
+							<input type="checkbox" value="LOCATION" id="entity_destiny_8">Lugar<br>
+							<input type="checkbox" value="ORGANIZATION" id="entity_destiny_9">Organización<br>
+							<input type="checkbox" value="DATE" id="entity_destiny_10">Fecha<br>
+							<input type="checkbox" value="NATIONALITY" id="entity_destiny_11">Nacionalidad<br>
+							<input type="checkbox" value="IDEOLOGY" id="entity_destiny_12">Idelología<br>
 						</div>
 					</div>
 				</fieldset>
+				<svg id='nodesLegend'></svg>
+				<div class="filter-controls-container">
+					<button class="whole_button" type="button" id="filter_btn" onclick="filterGraph()">Filtrar</button>
+					<button class="whole_button" type="button" id="delete_filter_btn" onclick="resetView()">Borrar Filtro</button>
+					<br>
+					<p>Selecciona el ancho del zoom</p>
+					<input type="range" value="100" name="points" min="10" max="100" onchange="modifyZoom(this.value)" oninput="modifyZoom(this.value)">
+				</div>
 			</div>
 		</div>
-		<button type="button" id="filter_btn" onclick="filterGraph()">Filtrar</button>
 	</div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>

@@ -5,6 +5,8 @@ from model.entity import Entity
 import re
 
 minimun_entity_length = 3
+number_types = ['NUMBER', 'MONEY', 'PERCENT']
+location_types = ['CITY', 'COUNTRY', 'LOCATION']
 
 
 class EntityExtractor:
@@ -29,7 +31,7 @@ class EntityExtractor:
         for key in result:
             for entity in result[key]:
                 if(self.__is_valid_entity(entity)):
-                    e = Entity(key, entity, 0)
+                    e = Entity(self.__unify_types(key), entity, 0)
                     entities.append(e)
         return entities
 
@@ -37,7 +39,8 @@ class EntityExtractor:
         r = requests.post(self.standfor_model_url,
                           params=self.stanford_params_map, data=text.encode('utf-8'))
         result = r.json()['sentences'][0]['entitymentions']
-        return [Entity(entity['ner'], entity['text'], 0) for entity in result if self.__is_valid_entity(entity['text'])]
+        return [Entity(self.__unify_types(entity['ner']),
+                       entity['text'], 0) for entity in result if self.__is_valid_entity(entity['text'])]
 
     def __unify_entities(self, stanford_entities, vision_entities):
         if not stanford_entities:
@@ -64,3 +67,10 @@ class EntityExtractor:
         if len(entity_text.split()) > 1 and entity_text.startswith('@'):
             return False
         return True
+
+    def __unify_types(self, type):
+        if type in number_types:
+            return 'NUMBER'
+        if type in location_types:
+            return 'LOCATION'
+        return type

@@ -9,7 +9,9 @@ var entity_destiny_ids = [];
 
 var returnedRelations = [];
 
-for (var i = 1; i < 17; i++) {
+var rectangleZoomWidth = 100;
+
+for (var i = 1; i < 13; i++) {
     entity_origen_ids.push('entity_origin_' + i);
     entity_destiny_ids.push('entity_destiny_' + i);
 }
@@ -116,4 +118,22 @@ function filterNodes(entityOriginList, entityDestinyList) {
 
         createGraph(filteredRelations);
     }
+}
+
+function resetView() {
+    for (id of entity_origen_ids) {
+        const originInput = document.getElementById(id);
+        originInput.checked = false;
+    }
+
+    for (id of entity_destiny_ids) {
+        const destinyInput = document.getElementById(id);
+        destinyInput.checked = false;
+    }
+    detailedSvg.selectAll("*").remove();
+    createGraph(returnedRelations.relations);
+}
+
+function modifyZoom(zoomValue) {
+    rectangleZoomWidth = zoomValue;
 }
