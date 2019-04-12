@@ -1,5 +1,5 @@
 const detailedNodeRadius = 8;
-const detailedMargin = 50;
+const detailedMargin = 80;
 const labelMargin = detailedNodeRadius + 5;
 const detailedWidth = 570;
 const fontSize = 10;
@@ -29,6 +29,14 @@ function drawDetailedGraph(nodes, links) {
         .data(detailedLinks)
         .enter()
         .append('line')
+        .on('mouseover', function (obj) {
+            detailedSvg.selectAll(".relation").remove();
+            detailedSvg.append("text")
+                .attr('class', 'relation')
+                .attr("x", 10)
+                .attr("y", 15)
+                .text(obj.relation);
+        })
         .attr('class', 'link')
         .attr("stroke", "#999")
         .attr("stroke-opacity", 0.6)

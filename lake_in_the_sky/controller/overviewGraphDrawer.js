@@ -9,6 +9,8 @@ const transform = d3.zoomIdentity;
 const linkDistance = 10;
 const nodeRadius = 5;
 
+var lockZoomRect = false;
+
 const colorScale = d3.scaleOrdinal(d3.schemePaired);
 colorScale.domain(['CAUSE_OF_DEATH', 'TITLE', 'CRIMINAL_CHARGE',
     'RELIGION', 'MISC', 'NUMBER', 'PERSON', 'LOCATION', 'ORGANIZATION',
@@ -20,19 +22,25 @@ svg.call(d3.zoom()
     .scaleExtent([1 / 2, 8])
     .on("zoom", zoomed));
 
-svg.on("mousemove", function () {
-    var mouse = d3.mouse(this);
-    actualXPos = mouse[0];
-    actualYPos = mouse[1];
-    svg.selectAll("rect").remove();
+svg.on("click", function () {
+    lockZoomRect = !lockZoomRect;
+});
 
-    svg.append("rect")
-        .attr("x", actualXPos - rectangleZoomWidth / 2)
-        .attr("y", actualYPos - rectangleZoomWidth / 2)
-        .attr("width", rectangleZoomWidth)
-        .attr("height", rectangleZoomWidth)
-        .style("fill", "none")
-        .style("stroke", "black")
+svg.on("mousemove", function () {
+    if (lockZoomRect) {
+        var mouse = d3.mouse(this);
+        actualXPos = mouse[0];
+        actualYPos = mouse[1];
+        svg.selectAll("rect").remove();
+
+        svg.append("rect")
+            .attr("x", actualXPos - rectangleZoomWidth / 2)
+            .attr("y", actualYPos - rectangleZoomWidth / 2)
+            .attr("width", rectangleZoomWidth)
+            .attr("height", rectangleZoomWidth)
+            .style("fill", "none")
+            .style("stroke", "black")
+    }
 });
 
 svg.on("mouseleave", function () {
@@ -110,14 +118,15 @@ function drawOverviewGraph(nodes, links) {
     }
 
     bigG.on("mousemove", function () {
-        var mouse = d3.mouse(this);
-        detailedNodes = filterNodes(mouse[0], mouse[1]);
-        detailedLinks = filterLinks(mouse[0], mouse[1]);
-        drawDetailedGraph(detailedNodes, detailedLinks);
+        if (lockZoomRect) {
+            var mouse = d3.mouse(this);
+            detailedNodes = filterNodes(mouse[0], mouse[1]);
+            detailedLinks = filterLinks(mouse[0], mouse[1]);
+            drawDetailedGraph(detailedNodes, detailedLinks);
+        }
     })
 
     function filterNodes(xPos, yPos) {
-        console.log(rectangleZoomWidth);
         filteredNodes = nodes.filter(n => (Math.abs(xPos - n.x) < rectangleZoomWidth) &&
             (Math.abs(yPos - n.y) < rectangleZoomWidth));
 
