@@ -1,5 +1,5 @@
 import twitter_client
-import unified_entities
+from unified_entities import falses_entities, false_entities_pattern, final_entities
 import re
 import unidecode
 
@@ -34,15 +34,15 @@ def unify_entity(entity, persisted_accounts):
 
 
 def unify_text_from_list(entity_text):
-    if entity_text in [normalize_text(false) for false in unified_entities.falses_entities]:
+    if entity_text in [normalize_text(false) for false in falses_entities]:
         return ''
 
-    for pattern in unified_entities.false_entities_pattern:
+    for pattern in false_entities_pattern:
         if re.match(pattern.lower(), entity_text.lower()):
             return ''
 
     possible_unified_list = [
-        x for x in unified_entities.final_entities if normalize_text(entity_text) in [normalize_text(nick) for nick in x['nicknames']]]
+        x for x in final_entities if normalize_text(entity_text) in [normalize_text(nick) for nick in x['nicknames']]]
     if possible_unified_list:
         return possible_unified_list[0]['realname']
     return entity_text
