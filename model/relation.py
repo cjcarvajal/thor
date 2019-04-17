@@ -8,13 +8,14 @@ class Relation(faust.Record, serializer='json'):
     entity_origin: Entity
     entity_end: Entity
     relation_text: str
+    relation_type: int
     tweets: List[Tweet]
 
     def __str__(self):
         separator = u'\n-----------------------------------------------------------------\n'
         origin = str(self.entity_origin)
         end = str(self.entity_end)
-        description = u'Origin [' + origin + u'] Relation[{self.relation_text}]'.format(
+        description = u'Origin [' + origin + u'] Relation[{self.relation_text}] Type[{self.relation_type}]'.format(
             self=self) + u' End [' + end + u']'
         return separator + description + separator
 

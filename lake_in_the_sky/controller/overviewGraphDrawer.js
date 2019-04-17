@@ -16,6 +16,10 @@ colorScale.domain(['CAUSE_OF_DEATH', 'TITLE', 'CRIMINAL_CHARGE',
     'RELIGION', 'MISC', 'NUMBER', 'PERSON', 'LOCATION', 'ORGANIZATION',
     'DATE', 'NATIONALITY', 'IDEOLOGY']);
 
+const linkColorScale = d3.scaleOrdinal()
+    .domain([1, 2, 3])
+    .range(['#999', '#e34a33', '#1c9099']);
+
 const bigG = svg.append("g");
 
 svg.call(d3.zoom()
@@ -44,7 +48,6 @@ svg.on("mousemove", function () {
 });
 
 svg.on("mouseleave", function () {
-    svg.selectAll(".day_label").remove();
     svg.selectAll("rect").remove();
 })
 
@@ -68,7 +71,7 @@ function drawOverviewGraph(nodes, links) {
         .enter()
         .append('line')
         .attr('class', 'link')
-        .attr("stroke", "#999")
+        .attr("stroke", d => { return linkColorScale(d.relation_type) })
         .attr("stroke-opacity", 0.6)
         .style("stroke-width", 2);
 
@@ -156,7 +159,8 @@ function drawOverviewGraph(nodes, links) {
             newGraphLinks.push({
                 'source': link.source.text,
                 'target': link.target.text,
-                'relation': link.relation
+                'relation': link.relation,
+                'relation_type': link.relation_type
             });
         });
         return newGraphLinks;

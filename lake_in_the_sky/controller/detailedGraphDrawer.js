@@ -20,7 +20,12 @@ function drawDetailedGraph(nodes, links) {
             'x1': nodeOrigin.x,
             'y1': nodeOrigin.y,
             'x2': nodeTarget.x,
-            'y2': nodeTarget.y, relation: link.relation
+            'y2': nodeTarget.y,
+            'relation': link.relation,
+            'source': link.source,
+            'target': link.target,
+            'relation_type': link.relation_type
+
         });
     });
 
@@ -35,10 +40,10 @@ function drawDetailedGraph(nodes, links) {
                 .attr('class', 'relation')
                 .attr("x", 10)
                 .attr("y", 15)
-                .text(obj.relation);
+                .text(obj.source + ' ' + obj.relation + ' ' + obj.target);
         })
         .attr('class', 'link')
-        .attr("stroke", "#999")
+        .attr("stroke", d => { return linkColorScale(d.relation_type) })
         .attr("stroke-opacity", 0.6)
         .style("stroke-width", 2)
         .attr("x1", d => xScale(d.x1))

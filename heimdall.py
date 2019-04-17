@@ -13,6 +13,7 @@ from model.tweet import Tweet
 from model.entity import Entity
 from model.processed_tweets import ProcessedTweets
 from model.possible_relation import PossibleRelation
+from model.empty_event import EmptyEvent
 
 entity_extractor = EntityExtractor()
 personal_knowledge = PersonalKnowledge()
@@ -53,6 +54,8 @@ common_relation_extraction_topic = app.topic(
 cluster_relation_extraction_topic = app.topic(
     'cluster_relation_extraction', value_type=PossibleRelation)
 
+reset_topic = app.topic('reset_topic', value_type=EmptyEvent)
+
 
 semantic_relation_topic = app.topic(
     'semantic_relation', value_type=Entity)
@@ -62,6 +65,7 @@ thor_table = app.Table(
 visited_entities_key = 'visited_entities'
 relations_key = 'relations'
 account_resolved_key = 'account_resolved'
+entity_counter_key = 'entity_counter'
 
 
 @app.agent(principal_topic, sink=[entity_extraction_topic])
@@ -89,6 +93,26 @@ async def unify_entities(tweets):
             tweet, persisted_accounts)
 
         thor_table[account_resolved_key] = persisted_accounts
+        entity_counter_list = thor_table[entity_counter_key]
+
+        if not entity_counter_list:
+            entity_counter_list = []
+
+        for entity in tweet.nee_entities:
+            founded = next(
+                (x for x in entity_counter_list if x['name'] == entity.text), None)
+            if founded:
+                filtered_list = [
+                    x for x in entity_counter_list if x['name'] != entity.text]
+                founded['counter'] += 1
+                filtered_list.append(founded)
+                entity_counter_list = filtered_list
+            else:
+                founded = {'name': entity.text,
+                           'type': entity.entity_type, 'counter': 1}
+                entity_counter_list.append(founded)
+
+        thor_table[entity_counter_key] = entity_counter_list
         yield tweet
 
 
@@ -163,9 +187,19 @@ async def extract_relations_by_clustering(possible_relations_stream):
         print(relations_by_clusters)
 
 
+@app.agent(reset_topic)
+async def reset_query(reset_event_stream):
+    async for reset in reset_event_stream:
+        print('Deleting persisted relations')
+        thor_table[visited_entities_key] = []
+        thor_table[relations_key] = []
+
+
 @app.page('/relations')
 async def get_relations(web, request):
-    return web.json({'relations': thor_table[relations_key]}, headers={'Access-Control-Allow-Origin': '*'})
+    return web.json({'relations': thor_table[relations_key],
+                     'entities_count': thor_table[entity_counter_key]},
+                    headers={'Access-Control-Allow-Origin': '*'})
 
 
 @app.page('/query/{keyword}')
@@ -174,4 +208,11 @@ async def analyze_tweets(self, request, keyword) -> None:
     tweets = twitter_client.request_tweets(keyword)
     for tweet in tweets:
         await start_processing.cast(tweet)
-    return self.json({'response': 'ok'}, headers={'Access-Control-Allow-Origin': '*'})
+    return self.json({'response': 'query started'}, headers={'Access-Control-Allow-Origin': '*'})
+
+
+@app.page('/reset')
+async def reset_table(self, request):
+    print('Deleting previous search')
+    await reset_query.cast(EmptyEvent(0))
+    return self.json({'response': 'reseted'}, headers={'Access-Control-Allow-Origin': '*'})

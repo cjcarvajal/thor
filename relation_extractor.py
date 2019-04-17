@@ -106,7 +106,7 @@ def group_relations_by_type(possible_relations):
                     groups.get(group_key).append(relation)
                 else:
                     groups[group_key] = [relation]
-    return groups   
+    return groups
 
 
 def create_clusters(grouped_relations, cluster_minimun_limit):
@@ -157,7 +157,7 @@ def getRelationsFromClusters(grouped_relations, clusters_by_element, cluster_min
         posible_relation = grouped_relations[index]
         relation_words = ' '.join(v[0] for v in clusters_content[element])
         relations.append(Relation(posible_relation.first_entity,
-                                  posible_relation.second_entity, relation_words, [posible_relation.tweet]))
+                                  posible_relation.second_entity, relation_words, 3, [posible_relation.tweet]))
     return relations
 
 

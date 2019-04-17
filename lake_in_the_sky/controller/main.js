@@ -1,6 +1,7 @@
 base_url = 'http://localhost:6066/'
 query_url = base_url + 'query/'
 relations_url = base_url + 'relations'
+reset_url = base_url + 'reset'
 
 let queryTerm = '';
 
@@ -35,8 +36,26 @@ function getRelations() {
     }).then(res => {
         returnedRelations = res;
         createGraph(res.relations)
+        createBubbleGraph(res.entities_count)
     });
+}
+
+function getRelationsAndQuery() {
+    getRelations();
     sendQuery();
+}
+
+function resetSearch() {
+    fetch(reset_url).then(data => {
+        return data.json()
+    }).then(res => {
+        resetView();
+    });
+}
+
+function createBubbleGraph(entity_list) {
+    nodes = [{ 'radius': 10 }, { 'radius': 5 }, { 'radius': 50 }, { 'radius': 15 }, { 'radius': 20 }];
+    drawBubbleGraph(entity_list);
 }
 
 function createGraph(relations) {
@@ -57,7 +76,8 @@ function createGraph(relations) {
             const entityRelation = {
                 'source': entityOriginNode.text,
                 'target': entityEndNode.text,
-                'relation': element.relation_text
+                'relation': element.relation_text,
+                'relation_type': element.relation_type
             }
 
             if (_.findWhere(nodes, entityOriginNode) == null) {

@@ -118,7 +118,6 @@ final_relations = [
         'destituyo a',
         'echo del cargo a',
         'ceso a',
-        'destituyo a',
         'echo a',
         'expulso a',
         'relevo a',

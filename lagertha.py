@@ -103,14 +103,14 @@ class PersonalKnowledge:
                 cleaned_dbpedia_text = self.__clean_dbpedia_text(
                     ceoUri['value'])
                 relation_list.append(Relation(Entity(
-                    'ORGANIZATION', entity, -1), Entity('PERSON', cleaned_dbpedia_text, -1), 'dirigida por', []))
+                    'ORGANIZATION', entity, -1), Entity('PERSON', cleaned_dbpedia_text, -1), 'dirigida por', 1, []))
             elif ceoUri['type'] == "uri":
                 name_query_results = self.__get_dbpedia_results(
                     ceo_name_query.format(ceoUri['value']))
                 if name_query_results['results']['bindings']:
                     relation_list.append(Relation(Entity(
                         'ORGANIZATION', entity, -1), Entity('PERSON', name_query_results['results']
-                                                            ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', []))
+                                                            ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', 1, []))
 
         return relation_list
 
@@ -136,5 +136,5 @@ class PersonalKnowledge:
         relation_list = []
         for result in query_results['results']['bindings']:
             relation_list.append(
-                Relation(Entity(first_entity_type, entity_text, -1), Entity(second_entity_type, result['info']['value'], -1), relation_text, []))
+                Relation(Entity(first_entity_type, entity_text, -1), Entity(second_entity_type, result['info']['value'], -1), relation_text, 1, []))
         return relation_list
