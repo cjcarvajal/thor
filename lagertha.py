@@ -36,6 +36,7 @@ class PersonalKnowledge:
         try:
             return 'ok', self.__query_info(ranked_entity)
         except Exception as e:
+            print('Exception finding linked relations for {}'.format(ranked_entity))
             print(e)
         return 'fail', None
 
@@ -71,6 +72,7 @@ class PersonalKnowledge:
 
     def __get_semantic_relations_for_person(self, entity):
         relation_list = []
+        print('Searching {}'.format(entity))
         results = self.__get_results(spouse_query.format(entity))
         relation_list.extend(self.__relation_list_builder(
             results, entity, 'conyugue de', 'PERSON', 'PERSON'))

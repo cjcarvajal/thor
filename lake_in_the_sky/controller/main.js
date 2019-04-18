@@ -161,7 +161,7 @@ function resetView() {
         const destinyInput = document.getElementById(id);
         destinyInput.checked = false;
     }
-    svg.selectAll("*").remove();
+    bigG.selectAll("*").remove();
     detailedSvg.selectAll("*").remove();
 }
 

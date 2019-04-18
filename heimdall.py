@@ -193,6 +193,7 @@ async def reset_query(reset_event_stream):
         print('Deleting persisted relations')
         thor_table[visited_entities_key] = []
         thor_table[relations_key] = []
+        thor_table[entity_counter_key] = []
 
 
 @app.page('/relations')
