@@ -7,6 +7,8 @@
 </head>
 
 <body>
+	<div class="header">Analizador de flujo de información sobre corrupción
+	</div>
 	<div class="container">
 		<form>
 			<div>
@@ -15,7 +17,7 @@
 				<button type="button" id="query_btn" onclick="startAnalysis()">Buscar</button>
 			</div>
 			<div>
-				<p>Elije uno de los siguientes temas:</p>
+				<p>Te recomendamos los siguientes temas de busqueda:</p>
 				<ul>
 					<li>JEP</li>
 					<li>Odebrecht</li>
@@ -24,16 +26,27 @@
 				</ul>
 			</div>
 			<div>
-				<button type="button" id="refresh_btn" onclick="getRelations()">Refrescar visualización</button>
 				<button type="button" id="refresh_query_btn" onclick="getRelationsAndQuery()">Repetir busqueda</button>
 				<button type="button" id="reset_btn" onclick="resetSearch()">Borrar busqueda</button>
 			</div>
 		</form>
+		<div>
+			<h1>Explorador de relaciones</h1>
+			<p>Refresca la visualización luego de haber realizado una busqueda. Usa el mouse en la vista general para ver las
+				relaciones en la vista detallada.</p>
+			<button type="button" id="refresh_btn" onclick="getRelations()">Refrescar visualización</button>
+		</div>
 		<div class="col_container">
-			<svg id='overview' class="border_view" width="49%" height="500">
-			</svg>
-			<svg id='detail' class="border_view" width="49%" height="500">
-			</svg>
+			<div class="half_div">
+				<h2>Vista General</h2>
+				<svg id='overview' class="border_view" width="100%" height="500">
+				</svg>
+			</div>
+			<div class="half_div">
+				<h2>Vista detallada</h2>
+				<svg id='detail' class="border_view" width="100%" height="500">
+				</svg>
+			</div>
 		</div>
 		<div class="checkbox_container">
 			<div class="filter_container">
@@ -95,10 +108,19 @@
 				</div>
 			</div>
 		</div>
+		<div>
+			<h1>Explorador de entidades</h1>
+			<p>Refresca la visualización luego de haber realizado una busqueda. Usa el mouse en la vista general para aumentar
+				el tamaño de los textos.</p>
+			<button type="button" id="refresh_btn" onclick="getBubbleData()">Refrescar visualización</button>
+		</div>
 		<div class='col_container'>
 			<svg id='bubble' class="border_view" width="100%" height="500">
 			</svg>
 		</div>
+	</div>
+	<div class="footer">
+		<img src="./resources/label.png" height="15" alt="me">
 	</div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>

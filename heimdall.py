@@ -197,8 +197,13 @@ async def reset_query(reset_event_stream):
 
 @app.page('/relations')
 async def get_relations(web, request):
-    return web.json({'relations': thor_table[relations_key],
-                     'entities_count': thor_table[entity_counter_key]},
+    return web.json({'relations': thor_table[relations_key]},
+                    headers={'Access-Control-Allow-Origin': '*'})
+
+
+@app.page('/entities')
+async def get_entities(web, request):
+    return web.json({'entities_count': thor_table[entity_counter_key]},
                     headers={'Access-Control-Allow-Origin': '*'})
 
 

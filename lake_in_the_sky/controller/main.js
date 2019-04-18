@@ -1,6 +1,7 @@
 base_url = 'http://localhost:6066/'
 query_url = base_url + 'query/'
 relations_url = base_url + 'relations'
+entities_url = base_url + 'entities'
 reset_url = base_url + 'reset'
 
 let queryTerm = '';
@@ -11,6 +12,9 @@ var entity_destiny_ids = [];
 var returnedRelations = [];
 
 var rectangleZoomWidth = 100;
+
+const svg = d3.select("#overview");
+const detailedSvg = d3.select('#detail');
 
 for (var i = 1; i < 13; i++) {
     entity_origen_ids.push('entity_origin_' + i);
@@ -36,6 +40,13 @@ function getRelations() {
     }).then(res => {
         returnedRelations = res;
         createGraph(res.relations)
+    });
+}
+
+function getBubbleData() {
+    fetch(entities_url).then(data => {
+        return data.json()
+    }).then(res => {
         createBubbleGraph(res.entities_count)
     });
 }
@@ -150,8 +161,8 @@ function resetView() {
         const destinyInput = document.getElementById(id);
         destinyInput.checked = false;
     }
+    svg.selectAll("*").remove();
     detailedSvg.selectAll("*").remove();
-    createGraph(returnedRelations.relations);
 }
 
 function modifyZoom(zoomValue) {

@@ -28,8 +28,8 @@ def unify_entity(entity, persisted_accounts):
                 print(e)
                 print('Entity Unifier')
                 print(twitter_user)
-    else:
-        entity.text = unify_text_from_list(entity.text)
+
+    entity.text = unify_text_from_list(entity.text)
     return entity
 
 
@@ -49,4 +49,4 @@ def unify_text_from_list(entity_text):
 
 
 def normalize_text(text):
-    return unidecode.unidecode(text).lower()
+    return unidecode.unidecode(text).lower().strip()

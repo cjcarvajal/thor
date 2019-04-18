@@ -1,8 +1,6 @@
 
 const width = 432;
 const height = 700;
-const svg = d3.select("#overview");
-const detailedSvg = d3.select('#detail');
 
 const transform = d3.zoomIdentity;
 

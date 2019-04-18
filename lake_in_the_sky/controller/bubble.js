@@ -7,6 +7,7 @@ var nodes = d3.range(numNodes).map(function (d) {
 })
 
 function drawBubbleGraph(nodes) {
+    d3.select('#bubble').selectAll('*').remove();
     const radiusScale = d3.scaleLinear()
         .domain([d3.min(nodes, d => d.counter), d3.max(nodes, d => d.counter)])
         .range([10, nHeight / 5]);
@@ -26,19 +27,6 @@ function drawBubbleGraph(nodes) {
 
         var texts = d3.select('#bubble').selectAll('text').data(nodes);
 
-        v.enter()
-            .append('text')
-            .text(d => d.name)
-            .attr('color', 'black')
-            .attr('font-size', 15)
-            .attr('x', function (d) {
-                return d.x;
-            })
-            .attr('y', function (d) {
-                return d.x;
-            })
-
-
         u.enter()
             .append('circle')
             .attr('r', d => { return radiusScale(d.counter) })
@@ -51,6 +39,38 @@ function drawBubbleGraph(nodes) {
                 return d.y
             })
         u.exit().remove()
+
+        texts.enter()
+            .append('text')
+            .merge(texts)
+            .text(d => { return d.name })
+            .attr('color', 'black')
+            .attr('font-size', d => { return getFontSize(d.counter, d.name) })
+            .attr('x', function (d) {
+                radius = radiusScale(d.counter)
+                return d.x - radiusScale(d.counter) + (radius / 4);
+            })
+            .attr('y', function (d) {
+                return d.y + (radius / 10);
+            })
+            .on('mouseover', handleOnMouseOver)
+            .on('mouseout', handleMouseOut)
+        texts.exit().remove()
+
+    }
+
+    function handleOnMouseOver(d, i) {
+        d3.select(this).attr('font-size', 40);
+    }
+
+    function handleMouseOut(d, i) {
+        d3.select(this).attr('font-size', getFontSize(d.counter, d.name));
+    }
+
+    function getFontSize(counter, name) {
+        radius = radiusScale(counter);
+        return radius / (name.length * 0.33);
     }
 
 }
+

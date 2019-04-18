@@ -1,8 +1,8 @@
 final_entities = [
     {'realname': 'Ivan Duque', 'nicknames': ['Titere', 'Porky', 'Señor de los mandados de El Ubérrimo',
-                                             'Mijito', 'Presidente Duque', 'Duque', 'Ivan', 'Ivan Duque Marquez', 'Iván Duque','Iván Duque']},
+                                             'Mijito', 'Presidente Duque', 'Duque', 'Ivan', 'Ivan Duque Marquez', 'Iván Duque', 'Iván Duque']},
     {'realname': 'Alvaro Uribe Velez', 'nicknames': ['alvaro', 'El innombrable ', 'Patron', 'Presidente Uribe', 'URIBE', 'Álvaro', 'Alvaro Uribe Velez', 'Senador Uribe',
-                                                     'Alvaro Uribe Vélez', 'Álvaro Uribe', 'Álvaro Uribe Vélez @AlvaroUribeVel', 'Álvaro Uribe Vélez', 'Presidente Uribe', 'Alvaro Uribe', 'PARACO']},
+                                                     'Alvaro Uribe Vélez', 'Álvaro Uribe', 'Álvaro Uribe Vélez @AlvaroUribeVel', 'Álvaro Uribe Vélez', 'Presidente Uribe', 'Alvaro Uribe', 'PARACO', 'uribe velez']},
     {'realname': 'Pablo Catatumbo', 'nicknames': ['Narcoterrorista']},
     {'realname': 'Antanas Mockus', 'nicknames': ['Profe', 'Mockus']},
     {'realname': 'Juan Manuel Santos ', 'nicknames': ['El culpable', 'Santos', 'sátrapa Santos',
@@ -254,7 +254,7 @@ final_entities = [
         'nicknames': ['Hugo Matteri üå¥‚òÄüå¥']},
     {'realname': 'Marina Walker Guevara', 'nicknames': ['Marina Walker']},
     {'realname': 'Claudia Nayibe López Hernández',
-        'nicknames': ['Claudia López', 'López','lopez']},
+        'nicknames': ['Claudia López', 'López', 'lopez']},
     {'realname': 'Yidis Medina Padilla',
         'nicknames': ['Yidis', 'yidis medina']},
     {'realname': 'John David McAfee', 'nicknames': ['John McAfee Explains']},
@@ -331,7 +331,9 @@ final_entities = [
     {'realname': 'Enrique Santiago Romero', 'nicknames': [
         'Enrique Santiago https://t.co/SRc60OYEls']},
     {'realname': ' Jesús Santrich', 'nicknames': [
-        'Santrich']}
+        'Santrich']},
+    {'realname': 'Sergio Fajardo Valderrama', 'nicknames': [
+        'Fajardo', 'sergio fajardo valderrama', 'sergio fajardo']}
 ]
 
 falses_entities = ['jorge', '29Cheva', '@WRadioColombiaC. Constitucional@JEP_ColombiaELNNacionalCorruptos', 'Abogado', 'Alcaldía MH', 'Andyüß∏', 'Angie Ô£ø', 'Armando.Info', 'BeGrand Vecinos', 'Cable', 'Calle', 'Camaléon', 'Colombianos', 'Cometeram', 'Congreso', 'Consejo', 'Corporación', 'Cuentas', 'Cámara', 'Derecho', 'Diario La Página', 'Directora', 'Días', 'Esas', 'Estado', 'Etcheves', 'Exijimos', 'Filoplanctón', 'GENUINA', 'Gastarse', 'Government Panama Papers Investigation', 'Gracias', 'Guardabosques', 'Hahahaha okay jep aku faham', 'Haja', 'Harald Von Der Goltz', 'Hpta', 'Impolutas', 'Inocentes', 'Investigan ADN', 'Izquierda', 'JB3Fu44nyt@CuartoDeHoraCol@elespectador', 'Jajajajaj', 'Juanchito', 'Justicia Ordinaria', 'Lalisü•ü', 'Lava Toga', 'Legal System', 'Leslie üåπ‚≠êÔ∏è‚úäüåà üåÖAlbyDIANCPI', 'Llaven Abarca', 'Luis', 'M8-EM8', 'MP de Guatemala', 'Magistrada', 'Manguel', 'Masas', 'Nacional',
