@@ -13,7 +13,7 @@ final_entities = [
     {'realname': 'Gustavo Petro', 'nicknames': [
         'Gaitanista', 'Gustavo Petro', 'PETRO', 'Petro Summer Camp', 'Terrorista M19', 'Petro', 'petrosky']},
     {'realname': 'Germán Vargas Lleras', 'nicknames': [
-        'Frentenacionalista', 'Vargas', 'Lleras']},
+        'Frentenacionalista', 'Vargas', 'Lleras', 'vargas lleras']},
     {'realname': 'Humberto de la calle', 'nicknames': [
         'Liberal Reformista', 'De la Calle', 'humberto']},
     {'realname': 'Sergio Fajardo',
@@ -106,7 +106,7 @@ final_entities = [
     {'realname': 'Julián Román Rey', 'nicknames': ['Julian Roman']},
     {'realname': 'Aurelio Arturo Martínez', 'nicknames': ['Arturo M.']},
     {'realname': 'Salvatore Mancuso', 'nicknames': [
-        'Mancuso', 'salvatore', 'salvatore m', 's mancuso']},
+        'Mancuso', 'salvatore', 'salvatore m', 's mancuso', 'salvatore mancuso']},
     {'realname': 'Carlos Castaño', 'nicknames': [
         'Carlos Castaño', 'carlos castaño', 'castaño']},
     {'realname': 'Jorge Enrique Pizano', 'nicknames': ['Pizano']},
@@ -131,7 +131,7 @@ final_entities = [
         'nicknames': ['Thelma Aldana', 'Thelma']},
     {'realname': 'Néstor Humberto Martínez', 'nicknames': [
         'Néstor Humberto Martínez Neira', 'Nestor Humberto Martínez Neira', 'Fiscal Martínez',
-        'Martínez', 'Fiscal', 'Néstor Humberto Martínez', 'Nestor Humberto']},
+        'Martínez', 'Fiscal', 'Néstor Humberto Martínez', 'Nestor Humberto', 'néstor h martinez']},
     {'realname': 'Rutilio Cruz Escandón Cadenas',
         'nicknames': ['Rutilio Escandón']},
     {'realname': 'Juan Eulogio Guerra Liera',

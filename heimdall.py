@@ -9,10 +9,12 @@ from lagertha import PersonalKnowledge
 import relation_extractor
 import entity_unifier
 import odin
+import aragorn
 from model.tweet import Tweet
 from model.entity import Entity
 from model.processed_tweets import ProcessedTweets
 from model.possible_relation import PossibleRelation
+from model.popular_relation import PopularRelation
 from model.empty_event import EmptyEvent
 
 entity_extractor = EntityExtractor()
@@ -22,6 +24,9 @@ relation_seeker_threshold = 100
 
 semantic_enrichment_threshold = 100
 semantic_enrichment_time_out = 60
+
+popular_relations_threshold = 10
+popular_relations_text_length_threshold = 10
 
 cluster_relations_threshold = 5000
 cluster_minimun_limit = 50
@@ -53,6 +58,8 @@ common_relation_extraction_topic = app.topic(
     'common_relation_extraction', value_type=PossibleRelation)
 cluster_relation_extraction_topic = app.topic(
     'cluster_relation_extraction', value_type=PossibleRelation)
+popular_relation_extraction_topic = app.topic(
+    'popular_relation_extraction', value_type=EmptyEvent)
 
 reset_topic = app.topic('reset_topic', value_type=EmptyEvent)
 
@@ -66,6 +73,7 @@ visited_entities_key = 'visited_entities'
 relations_key = 'relations'
 account_resolved_key = 'account_resolved'
 entity_counter_key = 'entity_counter'
+popular_relations_key = 'popular_relations'
 
 
 @app.agent(principal_topic, sink=[entity_extraction_topic])
@@ -119,8 +127,7 @@ async def unify_entities(tweets):
 @app.agent(entity_ranking_topic, sink=[semantic_relation_topic])
 async def rank_entities(tweets_stream):
     async for tweets in tweets_stream.take(semantic_enrichment_threshold, within=semantic_enrichment_time_out):
-        print('Threshold for semantic enrichment reached')
-        print('Discovering interesting entities')
+        print('-----------Threshold for entity ranking reached-----------')
         for entity in personal_knowledge.get_interesting_entities(
                 tweets, semantic_enrichment_popular_selector, semantic_enrichment_unusual_selector):
             yield entity
@@ -175,7 +182,7 @@ async def extract_common_relations(possible_relations_stream):
             saved_relations.add(relation)
             thor_table[relations_key] = list(saved_relations)
 
-
+'''
 @app.agent(cluster_relation_extraction_topic)
 async def extract_relations_by_clustering(possible_relations_stream):
     async for possible_relations in possible_relations_stream.take(cluster_relations_threshold, None):
@@ -185,15 +192,83 @@ async def extract_relations_by_clustering(possible_relations_stream):
             possible_relations, cluster_minimun_limit)
         print('Relations by clusters')
         print(relations_by_clusters)
+'''
+
+
+@app.agent(cluster_relation_extraction_topic)
+async def extract_relations_by_clustering(possible_relations_stream):
+    async for possible_relation in possible_relations_stream:
+
+        if possible_relation.clean_relation_text:
+
+            popular_saved_relations = thor_table[popular_relations_key]
+
+            popular = PopularRelation(
+                possible_relation.first_entity, possible_relation.second_entity, 3)
+
+            if not popular_saved_relations:
+                popular_saved_relations = [{
+                    'nodes': popular,
+                    'text': [possible_relation.clean_relation_text]
+                }]
+            else:
+                founded = next(
+                    (x for x in popular_saved_relations if x['nodes'] == popular), None)
+                if founded:
+                    filtered_list = [
+                        x for x in popular_saved_relations if x['nodes'] != popular]
+                    temporal_list = founded['text']
+                    temporal_list.append(
+                        possible_relation.clean_relation_text)
+                    founded['text'] = temporal_list
+                    filtered_list.append(founded)
+                else:
+                    popular_saved_relations.append(
+                        {
+                            'nodes': popular,
+                            'text': [possible_relation.clean_relation_text]
+                        })
+
+            thor_table[popular_relations_key] = popular_saved_relations
+
+            if len(popular_saved_relations) > popular_relations_threshold:
+                await extract_popular_relations.cast(EmptyEvent(1))
+
+
+@app.agent(popular_relation_extraction_topic)
+async def extract_popular_relations(event_stream):
+    async for event in event_stream:
+        popular_saved_relations = thor_table[popular_relations_key]
+        filtered_list = [
+            x for x in popular_saved_relations if len(x['text'])
+            > popular_relations_text_length_threshold]
+
+        if filtered_list:
+            print('-----------Starting popular relations extraction-----------')
+            saved_relations = set(thor_table[relations_key])
+
+            if not saved_relations:
+                saved_relations = set([])
+
+            retrieved_relations = set(aragorn.find_relations(filtered_list))
+            saved_relations.update(retrieved_relations)
+
+            unprocessed_list = [
+                x for x in popular_saved_relations if len(x['text'])
+                <= popular_relations_text_length_threshold]
+
+            thor_table[relations_key] = list(saved_relations)
+            thor_table[popular_relations_key] = unprocessed_list
 
 
 @app.agent(reset_topic)
 async def reset_query(reset_event_stream):
     async for reset in reset_event_stream:
-        print('Deleting persisted relations')
+        print('-----------Deleting persisted relations-----------')
         thor_table[visited_entities_key] = []
         thor_table[relations_key] = []
         thor_table[entity_counter_key] = []
+        thor_table[popular_relations_key] = []
 
 
 @app.page('/relations')
@@ -210,7 +285,7 @@ async def get_entities(web, request):
 
 @app.page('/query/{keyword}')
 async def analyze_tweets(self, request, keyword) -> None:
-    print('Starting analysis for {}'.format(keyword))
+    print('-----------Starting analysis for {}-----------'.format(keyword))
     tweets = twitter_client.request_tweets(keyword)
     for tweet in tweets:
         await start_processing.cast(tweet)
@@ -219,6 +294,12 @@ async def analyze_tweets(self, request, keyword) -> None:
 
 @app.page('/reset')
 async def reset_table(self, request):
-    print('Deleting previous search')
+    print('-----------Deleting previous search-----------')
     await reset_query.cast(EmptyEvent(0))
     return self.json({'response': 'reseted'}, headers={'Access-Control-Allow-Origin': '*'})
+
+
+@app.page('/test')
+async def test(web, request):
+    return web.json({'entities_count': thor_table[popular_relations_key]},
+                    headers={'Access-Control-Allow-Origin': '*'})

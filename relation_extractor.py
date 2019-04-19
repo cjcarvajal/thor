@@ -90,7 +90,8 @@ def get_possible_relations(tweet):
                 possible_relations.append(PossibleRelation(
                     text_in_between.strip(), cleaned_text.strip(), first, second, tweet))
             except Exception as e:
-                print(e)
+                # Do nothing, expectable exception if no substring is founded
+                pass
     return possible_relations
 
 
