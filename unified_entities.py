@@ -21,7 +21,7 @@ final_entities = [
     {'realname': 'María del Rosario Guerra',
         'nicknames': ['Charo Guerra', 'Rosario Guerra']},
     {'realname': 'Daniel Coronell', 'nicknames': [
-        'Daniel Coronell', 'Coronell']},
+        'Daniel Coronell', 'Coronell','Daniel Coronel']},
     {'realname': 'César Gaviria', 'nicknames': ['Gaviria', 'cesar gaviria']},
     {'realname': 'Pablo Felipe Robledo',
         'nicknames': ['Felipe Robledo', 'pablo felipe robledo']},

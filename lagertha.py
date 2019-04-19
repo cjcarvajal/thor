@@ -65,39 +65,44 @@ class PersonalKnowledge:
     def __query_info(self, entity):
         cleaned_text = self.__clean_text(entity.text)
         if entity.entity_type == 'PERSON':
-            return self.__get_semantic_relations_for_person(cleaned_text)
+            return self.__get_semantic_relations_for_person(cleaned_text, entity.text)
         if entity.entity_type == 'ORGANIZATION':
-            return self.__get_semantic_relations_for_organization(cleaned_text)
+            return self.__get_semantic_relations_for_organization(cleaned_text, entity.text)
         return []
 
-    def __get_semantic_relations_for_person(self, entity):
+    def __get_semantic_relations_for_person(self, cleaned_entity, raw_entity):
         relation_list = []
-        print('Searching {}'.format(entity))
-        results = self.__get_results(spouse_query.format(entity))
+        print('Searching {}'.format(cleaned_entity))
+        results = self.__get_results(spouse_query.format(cleaned_entity))
         relation_list.extend(self.__relation_list_builder(
-            results, entity, 'conyugue de', 'PERSON', 'PERSON'))
+            results, raw_entity, 'conyugue de', 'PERSON', 'PERSON'))
 
-        results = self.__get_results(political_party_query.format(entity))
+        results = self.__get_results(
+            political_party_query.format(cleaned_entity))
         relation_list.extend(self.__relation_list_builder(
-            results, entity, 'ha sido miembro de', 'PERSON', 'ORGANIZATION'))
+            results, raw_entity, 'ha sido miembro de', 'PERSON', 'ORGANIZATION'))
 
-        results = self.__get_results(education_query.format(entity))
+        results = self.__get_results(education_query.format(cleaned_entity))
         relation_list.extend(self.__relation_list_builder(
-            results, entity, 'educado/a en', 'PERSON', 'ORGANIZATION'))
+            results, raw_entity, 'educado/a en', 'PERSON', 'ORGANIZATION'))
 
-        results = self.__get_results(place_of_birth_query.format(entity))
+        results = self.__get_results(
+            place_of_birth_query.format(cleaned_entity))
         relation_list.extend(self.__relation_list_builder(
-            results, entity, 'nació en', 'PERSON', 'LOCATION'))
+            results, raw_entity, 'nació en', 'PERSON', 'LOCATION'))
 
-        results = self.__get_results(positions_held_query.format(entity))
+        results = self.__get_results(
+            positions_held_query.format(cleaned_entity))
         relation_list.extend(self.__relation_list_builder(
-            results, entity, 'ha sido', 'PERSON', 'TITLE'))
+            results, raw_entity, 'ha sido', 'PERSON', 'TITLE'))
 
         return relation_list
 
-    def __get_semantic_relations_for_organization(self, entity):
+    def __get_semantic_relations_for_organization(self, cleaned_entity, raw_entity):
+        print('Searching {}'.format(cleaned_entity))
         relation_list = []
-        query_results = self.__get_dbpedia_results(ceo_query.format(entity))
+        query_results = self.__get_dbpedia_results(
+            ceo_query.format(cleaned_entity))
 
         if query_results['results']['bindings']:
             ceoUri = query_results['results']['bindings'][0]['ceoUri']
@@ -105,14 +110,14 @@ class PersonalKnowledge:
                 cleaned_dbpedia_text = self.__clean_dbpedia_text(
                     ceoUri['value'])
                 relation_list.append(Relation(Entity(
-                    'ORGANIZATION', entity, -1), Entity('PERSON', cleaned_dbpedia_text, -1), 'dirigida por', 1, []))
+                    'ORGANIZATION', raw_entity, -1), Entity('PERSON', cleaned_dbpedia_text, -1), 'dirigida por', 1, []))
             elif ceoUri['type'] == "uri":
                 name_query_results = self.__get_dbpedia_results(
                     ceo_name_query.format(ceoUri['value']))
                 if name_query_results['results']['bindings']:
                     relation_list.append(Relation(Entity(
-                        'ORGANIZATION', entity, -1), Entity('PERSON', name_query_results['results']
-                                                            ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', 1, []))
+                        'ORGANIZATION', raw_entity, -1), Entity('PERSON', name_query_results['results']
+                                                                ['bindings'][0]['ceoName']['value'], -1), 'dirigida por', 1, []))
 
         return relation_list
 

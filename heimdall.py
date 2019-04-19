@@ -20,16 +20,10 @@ from model.empty_event import EmptyEvent
 entity_extractor = EntityExtractor()
 personal_knowledge = PersonalKnowledge()
 
-relation_seeker_threshold = 100
-
 semantic_enrichment_threshold = 100
 semantic_enrichment_time_out = 60
 
-popular_relations_threshold = 10
 popular_relations_text_length_threshold = 10
-
-cluster_relations_threshold = 5000
-cluster_minimun_limit = 50
 
 semantic_enrichment_popular_selector = 0.06
 semantic_enrichment_unusual_selector = 0.016
@@ -182,18 +176,6 @@ async def extract_common_relations(possible_relations_stream):
             saved_relations.add(relation)
             thor_table[relations_key] = list(saved_relations)
 
-'''
-@app.agent(cluster_relation_extraction_topic)
-async def extract_relations_by_clustering(possible_relations_stream):
-    async for possible_relations in possible_relations_stream.take(cluster_relations_threshold, None):
-        print('Threshold for cluster relations reached')
-        print('Creating clusters')
-        relations_by_clusters = relation_extractor.discover_relations(
-            possible_relations, cluster_minimun_limit)
-        print('Relations by clusters')
-        print(relations_by_clusters)
-'''
-
 
 @app.agent(cluster_relation_extraction_topic)
 async def extract_relations_by_clustering(possible_relations_stream):
@@ -231,8 +213,7 @@ async def extract_relations_by_clustering(possible_relations_stream):
 
             thor_table[popular_relations_key] = popular_saved_relations
 
-            if len(popular_saved_relations) > popular_relations_threshold:
-                await extract_popular_relations.cast(EmptyEvent(1))
+            await extract_popular_relations.cast(EmptyEvent(1))
 
 
 @app.agent(popular_relation_extraction_topic)
@@ -252,6 +233,9 @@ async def extract_popular_relations(event_stream):
 
             retrieved_relations = set(aragorn.find_relations(filtered_list))
             saved_relations.update(retrieved_relations)
+
+            print('aca')
+            print(retrieved_relations)
 
             unprocessed_list = [
                 x for x in popular_saved_relations if len(x['text'])
