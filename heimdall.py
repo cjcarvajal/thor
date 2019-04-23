@@ -12,7 +12,6 @@ import odin
 import aragorn
 from model.tweet import Tweet
 from model.entity import Entity
-from model.processed_tweets import ProcessedTweets
 from model.possible_relation import PossibleRelation
 from model.popular_relation import PopularRelation
 from model.empty_event import EmptyEvent

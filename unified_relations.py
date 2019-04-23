@@ -301,7 +301,7 @@ final_relations = [
         'reafirmo multa contra'
     ]},
     {'relation_name': 'realiza intervencion a', 'relation_nicknames': [
-        'adelenta intervencion a',
+        'adelanta intervencion a',
         'concreta intervencion a',
         'ejecuta intervencion a',
         'materializa intervencion a'
