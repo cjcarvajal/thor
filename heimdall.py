@@ -10,6 +10,7 @@ import relation_extractor
 import entity_unifier
 import odin
 import aragorn
+import mongo_test_client
 from model.tweet import Tweet
 from model.entity import Entity
 from model.possible_relation import PossibleRelation
@@ -274,6 +275,13 @@ async def analyze_tweets(self, request, keyword) -> None:
         await start_processing.cast(tweet)
     return self.json({'response': 'query started'}, headers={'Access-Control-Allow-Origin': '*'})
 
+@app.page('/query-test/{keyword}')
+async def query_test(self, request, keyword) -> None:
+    print('-----------Starting test for {}-----------'.format(keyword))
+    tweets = mongo_test_client.request_tweets(keyword)
+    for tweet in tweets:
+        await start_processing.cast(tweet)
+    return self.json({'response': 'query started'}, headers={'Access-Control-Allow-Origin': '*'})
 
 @app.page('/reset')
 async def reset_table(self, request):
