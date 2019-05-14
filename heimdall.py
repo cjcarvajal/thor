@@ -234,7 +234,6 @@ async def extract_popular_relations(event_stream):
             retrieved_relations = set(aragorn.find_relations(filtered_list))
             saved_relations.update(retrieved_relations)
 
-            print('aca')
             print(retrieved_relations)
 
             unprocessed_list = [
