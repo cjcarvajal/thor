@@ -4,7 +4,7 @@ body {
 }
 
 .header {
-    background-color: #f00;
+    background-color: #33BEFF;
     height: 50px;
     display: flex;
     align-items: center;
@@ -14,7 +14,7 @@ body {
 }
 
 .footer {
-    background-color: #f00;
+    background-color: #33BEFF;
     height: 40px;
     display: flex;
     align-items: center;
