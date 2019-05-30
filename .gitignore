@@ -3,4 +3,3 @@
 .vscode/
 entity-bootstrap.sh
 delete-topics.sh
-twitter_client.py
